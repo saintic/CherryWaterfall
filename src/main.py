@@ -19,13 +19,13 @@ __author__  = "Mr.tao"
 __email__   = "staugur@saintic.com"
 __date__    = "2017-12-05"
 
-import datetime, SpliceURL, os.path
+import datetime, SpliceURL
 from config import GLOBAL, SSO, Upyun
 from thirds.binbase64 import base64str
-from werkzeug import secure_filename
-from flask import Flask, request, g, redirect, make_response, url_for, jsonify
-from utils.tool import logger, isLogged_in, md5, gen_rnd_filename, UploadImage2Upyun, allowed_file, login_required
 from utils.Signature import Signature
+from utils.tool import logger, isLogged_in, md5, gen_rnd_filename, UploadImage2Upyun, allowed_file, login_required
+from werkzeug import secure_filename
+from flask import Flask, request, g, redirect, make_response, url_for, jsonify, render_template
 
 #初始化定义application
 app = Flask(__name__)
@@ -69,8 +69,6 @@ def login():
 
 @app.route('/logout/')
 def logout():
-    if not g.signin:
-        return redirect(url_for("index"))
     SSOLogoutURL = SSO.get("SSO.URL") + "/sso/?nextUrl=" + request.url_root.strip("/")
     resp = make_response(redirect(SSOLogoutURL))
     resp.set_cookie(key='logged_in', value='', expires=0)
@@ -104,7 +102,7 @@ def sso():
     return resp
 
 @app.route("/")
-@sig.signature_required
+#@sig.signature_required
 @login_required
 def index():
     return render_template("admin.html")

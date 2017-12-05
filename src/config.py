@@ -19,7 +19,7 @@ GLOBAL={
     "Host": os.getenv("cherrywaterfall_host", "0.0.0.0"),
     #监听地址
 
-    "Port": os.getenv("cherrywaterfall_port", 13140),
+    "Port": os.getenv("cherrywaterfall_port", 13141),
     #监听端口
 
     "LogLevel": os.getenv("cherrywaterfall_loglevel", "DEBUG"),

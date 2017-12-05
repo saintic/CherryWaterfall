@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>layui</title>
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <link rel="stylesheet" href="css/layui.css"  media="all">
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layui.css') }}"  media="all">
+    <link href="{{ url_for('static', filename='images/favicon.ico') }}" rel="icon" type="image/x-icon" />
+    <link href="{{ url_for('static', filename='images/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
 <div class="layui-upload">
@@ -26,7 +28,7 @@
   </div>
   <button type="button" class="layui-btn" id="testListAction">开始上传</button>
 </div>
-<script src="layui.js" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='layui.js') }}" charset="utf-8"></script>
 <script>
 layui.use(['upload','layer'], function(){
     var upload = layui.upload, layer = layui.layer, $ = layui.jquery;
@@ -34,7 +36,7 @@ layui.use(['upload','layer'], function(){
     var files;
     var demoListView = $('#demoList'),uploadListIns = upload.render({
         elem: '#testList'
-        ,url: 'https://www.saintic.com/upload/test/'
+        ,url: '{{ url_for("upload") }}'
         ,method: 'POST'
         ,accept: 'images'
         ,multiple: true
