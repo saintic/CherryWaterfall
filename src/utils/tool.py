@@ -24,9 +24,12 @@ gen_rnd_filename = lambda :"%s%s" %(datetime.datetime.now().strftime('%Y%m%d%H%M
 #文件名合法性验证
 allowed_file = lambda filename: '.' in filename and filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
 
+def get_current_timestamp():
+    """ 获取本地当前时间戳(10位): Unix timestamp：是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒 """
+    return int(time.mktime(datetime.datetime.now().timetuple()))
+
 def isLogged_in(cookie_str):
     ''' check username is logged in '''
-
     SSOURL = SSO.get("SSO.URL")
     if cookie_str and not cookie_str == '..':
         username, expires, sessionId = cookie_str.split('.')
@@ -49,12 +52,11 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def UploadImage2Upyun(FilePath, FileData):
-    """ Upload image to Upyun Cloud with Api """
-    up = upyun.UpYun(Upyun["bucket"], username=Upyun["username"], password=Upyun["password"], timeout=10, endpoint=upyun.ED_AUTO)
-    res = up.put(FilePath, FileData)
-    return res
-
-def get_current_timestamp():
-    """ 获取本地当前时间戳(10位): Unix timestamp：是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒 """
-    return int(time.mktime(datetime.datetime.now().timetuple()))
+def timestamp_datetime(timestamp, format='%Y-%m-%d %H:%M:%S'):
+    """ 将时间戳(10位)转换为可读性的时间 """
+    # timestamp为传入的值为时间戳(10位整数)，如：1332888820
+    timestamp = time.localtime(timestamp)
+    # 经过localtime转换后变成
+    ## time.struct_time(tm_year=2012, tm_mon=3, tm_mday=28, tm_hour=6, tm_min=53, tm_sec=40, tm_wday=2, tm_yday=88, tm_isdst=0)
+    # 最后再经过strftime函数转换为正常日期格式。
+    return time.strftime(format, timestamp)

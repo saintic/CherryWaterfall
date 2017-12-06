@@ -9,40 +9,33 @@
     :license: Apache2.0, see LICENSE for more details.
 """
 
+from config import Sign
 from .tool import logger, md5, get_current_timestamp
 from functools import wraps
-from flask import request
+from flask import request, jsonify
 
 
 class Signature(object):
     """ 接口签名认证 """
 
     def __init__(self):
-        self._version = "v1"
+        self._version = Sign["version"]
         self._accessKeys = [
-            {"accesskey_id": "2A6F8B5ACD5E6D9663C739345D613403", "accesskey_secret": "B04F61F68D63E757A5019378B817B3917E3096FD9DFA36F1AEA9CA5FA634D0B6"}
+            {"accesskey_id": Sign["accesskey_id"], "accesskey_secret": Sign["accesskey_secret"]}
         ]
-        # 时间戳有效时长，单位秒
-        self._timestamp_expiration = 30
-
-    def get_signer_name(self):
-        """获取签名算法"""
-        return "MD5"
-
-    def get_singer_version(self):
-        """获取签名版本"""
-        return self._version
 
     def _check_req_timestamp(self, req_timestamp):
         """ 校验时间戳
         @pram req_timestamp str,int: 请求参数中的时间戳(10位)
         """
         if len(str(req_timestamp)) == 10:
-            req_timestamp = int(req_timestamp)
-            now_timestamp = get_current_timestamp()
-            logger.debug("req_timestamp: {}, now_timestamp: {}, req_timestamp <= now_timestamp: {}, 30s: {}".format(req_timestamp, now_timestamp, req_timestamp <= now_timestamp, req_timestamp + self._timestamp_expiration >= now_timestamp))
-            if req_timestamp <= now_timestamp and req_timestamp + self._timestamp_expiration >= now_timestamp:
-                return True
+            try:
+                req_timestamp = int(req_timestamp)
+            except:
+                return False
+            else:
+                if req_timestamp <= get_current_timestamp():
+                    return True
         return False
 
     def _check_req_accesskey_id(self, req_accesskey_id):
@@ -119,5 +112,5 @@ class Signature(object):
             if res["success"] is True:
                 return f(*args, **kwargs)
             else:
-                return res
+                return jsonify(res)
         return decorated_function

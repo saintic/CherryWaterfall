@@ -38,10 +38,22 @@ SSO={
     #SSO Allowed User List
 }
 
-#又拍云存储插件
+REDIS = os.getenv("cherrywaterfall_redis_url")
+# Redis数据库连接信息，格式:
+# redis://[:password]@host:port/db
+# host,port必填项,如有密码,记得密码前加冒号
+
+#又拍云存储配置
 Upyun={
-    "bucket": os.getenv("cherrywaterfall_UpYunStorage_bucket", ""),
-    "username": os.getenv("cherrywaterfall_UpYunStorage_username", ""),
-    "password": os.getenv("cherrywaterfall_UpYunStorage_password", ""),
-    "dn": os.getenv("cherrywaterfall_UpYunStorage_dn", "https://img.saintic.com"),
+    "bucket": os.getenv("cherrywaterfall_upyun_bucket", ""),
+    "username": os.getenv("cherrywaterfall_upyun_username", ""),
+    "password": os.getenv("cherrywaterfall_upyun_password", ""),
+    "dn": os.getenv("cherrywaterfall_upyun_dn", "https://img.saintic.com"),
+    "basedir": os.getenv("cherrywaterfall_upyun_basedir", "/test")
+}
+#签名配置
+Sign={
+    "version": os.getenv("cherrywaterfall_sign_version", "v1"),
+    "accesskey_id": os.getenv("cherrywaterfall_sign_accesskeyid", "accesskey_id"),
+    "accesskey_secret": os.getenv("cherrywaterfall_sign_accesskeysecret", "accesskey_secret"),
 }

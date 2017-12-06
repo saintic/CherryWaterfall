@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}主页{% endblock %}
+
+{%- block head %}
+    <style>
+    /*大层*/
+    .container{width:80%;margin: 0 auto;}
+    /*瀑布流层*/
+    .waterfall{
+        -moz-column-count:4; /* Firefox */
+        -webkit-column-count:4; /* Safari 和 Chrome */
+        column-count:4;
+        -moz-column-gap: 1em;
+      -webkit-column-gap: 1em;
+      column-gap: 1em;
+    }
+    /*一个内容层*/
+    .item{
+      padding: 0em;
+      margin: 0 0 0em 0;
+      -moz-page-break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      break-inside: avoid;
+     border: 0px solid #000;
+    }
+    .item img{
+        width: 100%;
+        margin-bottom:10px;
+    }
+    </style>
+{% endblock -%}
+
+{% block content %}
+    <blockquote class="layui-elem-quote">
+        当前位置: 主页
+    </blockquote>
+    <div class="container">
+        <div class="waterfall" id="layImages">
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+layui.use(['util', 'flow'], function(){
+    var $ = layui.jquery;
+    var util = layui.util;
+    var flow = layui.flow;
+    //右下角工具
+    util.fixbar();
+    //流加载图片
+    flow.load({
+        elem: '#layImages'
+        ,isLazyimg: true
+        ,isAuto: true
+        ,done: function(page, next){ //加载下一页
+            page -= 1;
+            var lis = [];
+            var params = {Action: "getList", page: page, length: 5};
+            $.get('{{ url_for("api_view") }}?'+make_url(params), function(res){
+                console.log(res);
+                layui.each(res.data, function(index, item){
+                    lis.push('<div class="item"><img src="'+item.imgUrl+'"></div>');
+                }); 
+                next(lis.join(''), page < res.pageCount);    
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
