@@ -37,7 +37,7 @@ sig = Signature()
 #又拍云存储封装接口
 api = CloudStorage()
 #又拍云存储图片数据缓存
-key = "{}:Images:hash".format(GLOBAL["ProcessName"])
+key = "{}:Images".format(GLOBAL["ProcessName"])
 
 # 添加模板上下文变量
 @app.context_processor  
