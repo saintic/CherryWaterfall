@@ -131,8 +131,8 @@ def admin_view():
     return render_template("admin.html")
 
 @app.route('/upload/', methods=['POST','OPTIONS'])
-@sig.signature_required
 @login_required
+@sig.signature_required
 def upload_view():
     res = dict(code=-1, msg=None)
     logger.debug(request.files)
@@ -163,8 +163,8 @@ def upload_view():
     return jsonify(res)
 
 @app.route("/api/")
-@sig.signature_required
 @login_required
+@sig.signature_required
 def api_view():
     """获取图片数据(以redis为基准)"""
     res = dict(code=-1, msg=None)
