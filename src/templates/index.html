@@ -3,32 +3,7 @@
 {% block title %}主页{% endblock %}
 
 {%- block head %}
-    <style>
-    /*大层*/
-    .container{width:80%;margin: 0 auto;}
-    /*瀑布流层*/
-    .waterfall{
-        -moz-column-count:4; /* Firefox */
-        -webkit-column-count:4; /* Safari 和 Chrome */
-        column-count:4;
-        -moz-column-gap: 1em;
-      -webkit-column-gap: 1em;
-      column-gap: 1em;
-    }
-    /*一个内容层*/
-    .item{
-      padding: 0em;
-      margin: 0 0 0em 0;
-      -moz-page-break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-      break-inside: avoid;
-     border: 0px solid #000;
-    }
-    .item img{
-        width: 100%;
-        margin-bottom:10px;
-    }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"  media="all">
 {% endblock -%}
 
 {% block content %}
@@ -57,7 +32,7 @@ layui.use(['util', 'flow'], function(){
         ,done: function(page, next){ //加载下一页
             page -= 1;
             var lis = [];
-            var params = {Action: "getList", page: page, length: 5};
+            var params = {Action: "getList", page: page, length: 10};
             $.get('{{ url_for("api_view") }}?'+make_url(params), function(res){
                 console.log(res);
                 layui.each(res.data, function(index, item){

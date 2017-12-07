@@ -51,6 +51,7 @@ Upyun={
     "dn": os.getenv("cherrywaterfall_upyun_dn", "https://img.saintic.com"),
     "basedir": os.getenv("cherrywaterfall_upyun_basedir", "/test")
 }
+
 #签名配置
 Sign={
     "version": os.getenv("cherrywaterfall_sign_version", "v1"),

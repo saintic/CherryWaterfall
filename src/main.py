@@ -50,7 +50,6 @@ def before_request():
     g.expires = request.cookies.get("time", "")
     g.signin = isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
     g.redis = from_url(REDIS)
-    g.api = api
 
 @app.after_request
 def after_request(response):
@@ -105,7 +104,7 @@ def sso():
     logger.info("ticket: %s" %ticket)
     username, expires, sessionId = ticket.split('.')
     if username and not username in SSO["SSO.AllowedUserList"]:
-        logger.info("BlueSky is not allowed to login with {}.".format(username))
+        logger.info("CherryWaterfall is not allowed to login with {}.".format(username))
         return redirect(url_for("sso"))
     if expires == 'None':
         UnixExpires = None

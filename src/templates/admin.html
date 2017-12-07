@@ -7,7 +7,7 @@
     当前位置: 控制台
 </blockquote>
 <div class="layui-upload">
-  <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button> 
+  <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
   <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
   <div class="layui-upload-list">
     <table class="layui-table">
@@ -32,7 +32,7 @@ layui.use(['upload','layer'], function(){
     //多文件列表示例
     var files;
     var demoListView = $('#previewList'),uploadListIns = upload.render({
-        elem: '#testList'
+        elem: '#chooseList'
         ,url: '{{ url_for("upload_view") }}?'+make_url()
         ,method: 'POST'
         ,accept: 'images'
