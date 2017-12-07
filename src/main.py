@@ -19,7 +19,7 @@ __author__  = "Mr.tao"
 __email__   = "staugur@saintic.com"
 __date__    = "2017-12-05"
 
-import datetime, SpliceURL, os.path, json
+import datetime, SpliceURL, os.path, json, sys
 from config import GLOBAL, SSO, Upyun, REDIS, Sign
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
@@ -27,6 +27,8 @@ from utils.tool import logger, isLogged_in, md5, gen_rnd_filename, allowed_file,
 from redis import from_url
 from werkzeug import secure_filename
 from flask import Flask, request, g, redirect, make_response, url_for, jsonify, render_template
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 #初始化定义application
 app = Flask(__name__)
