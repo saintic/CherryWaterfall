@@ -25,11 +25,6 @@ layui.use(['util', 'flow', 'layer'], function(){
     var layer = layui.layer;
     //右下角工具
     util.fixbar();
-    //相册
-    layer.photos({
-        photos: '#layImages'
-        ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
-    });
     //流加载图片
     flow.load({
         elem: '#layImages'
@@ -42,24 +37,38 @@ layui.use(['util', 'flow', 'layer'], function(){
             $.get('{{ url_for("api_view") }}?'+make_url(params), function(res){
                 console.log(res);
                 layui.each(res.data, function(index, item){
-                    lis.push('<div class="item"><img src="'+item.imgUrl+'" ></div>');
+                    lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)"></div>');
                 }); 
                 next(lis.join(''), page < res.pageCount);    
             });
-      var objs = document.getElementsByTagName("img");
-      for(var i=0;i<objs.length;i++)
-      {
-        objs[i].onclick=function()
-        {
-          window.open(this.src);
-        }
-        objs[i].style.cursor = "pointer";
-      }
-
-
         }
     });
-
 });
+function showPic(imgUrl) {
+    console.log(imgUrl);
+    var winSize = function() {
+        var e = window,
+            a = 'inner';
+        if (!('innerWidth' in window )){
+            a = 'client';
+            e = document.documentElement || document.body;
+        }
+        return { width : e[ a+'Width' ] , height : e[ a+'Height' ] };
+    };
+    layui.use('layer', function() {
+        var layer = layui.layer;
+        var w = winSize().width - 20, h = winSize().height - 50;
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 1,
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            maxWidth: w,
+            maxHeight: h,
+            content: '<img src="' + imgUrl +'" />'
+        });
+    });
+}
 </script>
 {% endblock %}
