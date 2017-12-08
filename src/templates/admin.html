@@ -30,7 +30,7 @@
 layui.use(['upload','layer'], function(){
     var upload = layui.upload, layer = layui.layer, $ = layui.jquery;
     //多文件列表示例
-    var files;
+    //var files;
     var demoListView = $('#previewList'),uploadListIns = upload.render({
         elem: '#chooseList'
         ,url: '{{ url_for("upload_view") }}?'+make_url()
@@ -42,7 +42,8 @@ layui.use(['upload','layer'], function(){
         ,size: 1000
         ,bindAction: '#uploadAction'
         ,choose: function(obj){   
-            files = obj.pushFile(); //将每次选择的文件追加到文件队列
+            //files = obj.pushFile(); //将每次选择的文件追加到文件队列
+            var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
             //读取本地文件
             obj.preview(function(index, file, result){
                 var tr = $(['<tr id="upload-'+ index +'">'
@@ -68,7 +69,7 @@ layui.use(['upload','layer'], function(){
             });
         }
         ,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
-            if (Object.keys(files).length===0) {
+            if (Object.keys(this.files).length===0) {
                 layer.msg("队列中无图片");
             } else {
                 layer.load(); //上传loading
@@ -80,7 +81,7 @@ layui.use(['upload','layer'], function(){
                 var tr = demoListView.find('tr#upload-'+ index),tds = tr.children();
                 tds.eq(3).html('<span style="color: #5FB878;">上传成功</span>');
                 tds.eq(4).html(''); //清空操作
-                delete files[index]; //删除文件队列已经上传成功的文件
+                delete this.files[index]; //删除文件队列已经上传成功的文件
                 layer.closeAll('loading');
                 return;
             }
