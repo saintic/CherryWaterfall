@@ -17,6 +17,7 @@ from flask import g, request, redirect, url_for
 
 md5 = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger = Logger("sys").getLogger
+access_logger = Logger("access").getLogger
 #列表按长度切割
 ListEqualSplit = lambda l,n=5: [ l[i:i+n] for i in range(0,len(l), n) ]
 #无重复随机数
@@ -60,3 +61,49 @@ def timestamp_datetime(timestamp, format='%Y-%m-%d %H:%M:%S'):
     ## time.struct_time(tm_year=2012, tm_mon=3, tm_mday=28, tm_hour=6, tm_min=53, tm_sec=40, tm_wday=2, tm_yday=88, tm_isdst=0)
     # 最后再经过strftime函数转换为正常日期格式。
     return time.strftime(format, timestamp)
+
+def getSystem(rc, key):
+    """查询系统配置"""
+    res = {"msg": None, "data": dict()}
+    try:
+        data = rc.hgetall(key)
+    except Exception, e:
+        logger.error(e, exc_info=True)
+        res.update(msg="query system configure error")
+    else:
+        """
+        site_TitleSuffix: 站点标题后缀
+        site_RssTitle: 站点订阅源标题
+        site_License: 站点许可证
+        site_Copyright: 站点版权
+        author_Email: 作者邮箱
+        github: 项目github地址
+        """
+        if not data.get("site_TitleSuffix"):
+            data.update(site_TitleSuffix=u"樱瀑")
+        if not data.get("site_RssTitle"):
+            data.update(site_RssTitle=u"樱瀑")
+        if not data.get("site_License"):
+            data.update(site_License="MIT")
+        if not data.get("site_Copyright"):
+            data.update(site_Copyright="Copyright © 2017.")
+        if not data.get("author_Email"):
+            data.update(author_Email="")
+        if not data.get("github"):
+            data.update(github="https://github.com/staugur/CherryWaterfall")
+        res.update(data=data)
+    logger.debug(res)
+    return res
+
+def setSystem(rc, key, **kwargs):
+    """更新系统配置"""
+    res = {"msg": None, "code": -1}
+    try:
+        success = rc.hmset(key, kwargs)
+    except Exception, e:
+        logger.error(e, exc_info=True)
+        res.update(msg="Update system configure error")
+    else:
+        res.update(code=0 if success else 1)
+    logger.debug(res)
+    return res

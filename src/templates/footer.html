@@ -1,0 +1,12 @@
+<div class="layui-footer footer footer-demo">
+  <div class="layui-main">
+    <p>{{ g.site.site_Copyright }} <a href="{{ url_for('index_view') }}">{{ request.url_root.split("://")[-1].strip("/") }}</a> {{ g.site.site_License }} LICENSE</p>
+    <p>
+      <a href="mailto:{{ g.site.author_Email }}">联系</a>
+      <a href="{{ g.site.github }}" target="_blank" rel="nofollow">GitHub</a>
+    </p>
+    <p class="site-union">
+      <a href="https://www.upyun.com/?from=saintic" target="_blank" rel="nofollow" upyun=""><img src="{{ url_for('static', filename='images/upyun.png') }}"></a>
+    </p>
+  </div>
+</div>

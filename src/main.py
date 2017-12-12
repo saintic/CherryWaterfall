@@ -23,7 +23,7 @@ import datetime, SpliceURL, os.path, json, sys
 from config import GLOBAL, SSO, Upyun, REDIS, Sign
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
-from utils.tool import logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit
+from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit, getSystem, setSystem
 from redis import from_url
 from werkzeug import secure_filename
 from flask import Flask, request, g, redirect, make_response, url_for, jsonify, render_template
@@ -37,12 +37,14 @@ sig = Signature()
 #又拍云存储封装接口
 api = CloudStorage()
 #又拍云存储图片数据缓存
-key = "{}:Images".format(GLOBAL["ProcessName"])
+picKey = "{}:Images".format(GLOBAL["ProcessName"])
+#系统配置
+sysKey = "{}:System".format(GLOBAL["ProcessName"])
 
 # 添加模板上下文变量
 @app.context_processor  
 def GlobalTemplateVariables():  
-    data = {"Sign": Sign, "Author": __author__, "Email": __email__, "Date": __date__, "key": key}
+    data = {"Sign": Sign, "picKey": picKey}
     return data
 
 @app.before_request
@@ -50,8 +52,9 @@ def before_request():
     g.sessionId = request.cookies.get("sessionId", "")
     g.username = request.cookies.get("username", "")
     g.expires = request.cookies.get("time", "")
-    g.signin = isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
+    g.signin = True#isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
     g.redis = from_url(REDIS)
+    g.site = getSystem(g.redis, sysKey)["data"]
 
 @app.after_request
 def after_request(response):
@@ -63,8 +66,7 @@ def after_request(response):
         "referer": request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),
     }
-    logger.info(data)
-    #response.headers["Access-Control-Allow-Origin"] = "*"
+    access_logger.info(data)
     return response
 
 @app.teardown_request
@@ -123,11 +125,13 @@ def sso():
 @app.route("/")
 @login_required
 def index_view():
+    """主页视图"""
     return render_template("index.html")
 
 @app.route("/admin")
 @login_required
 def admin_view():
+    """控制台视图"""
     return render_template("admin.html")
 
 @app.route('/upload/', methods=['POST','OPTIONS'])
@@ -150,7 +154,7 @@ def upload_view():
             imgUrl = Upyun['dn'].strip("/") + imgUrl
             upres.update(ctime=get_current_timestamp(), imgUrl=imgUrl)
             try:
-                rcode = g.redis.sadd(key, json.dumps(upres))
+                rcode = g.redis.sadd(picKey, json.dumps(upres))
             except Exception,e:
                 logger.error(e, exc_info=True)
                 res.update(code=0, msg="It has been uploaded, but the server has encountered an unknown error")
@@ -169,18 +173,19 @@ def api_view():
     """获取图片数据(以redis为基准)"""
     res = dict(code=-1, msg=None)
     Action = request.args.get("Action")
-    sort = request.args.get("sort") or "desc"
-    page = request.args.get("page") or 0
-    length = request.args.get("length") or 10
-    # 参数检查
-    try:
-        page = int(page)
-        length = int(length)
-    except:
-        res.update(code=2, msg="Invalid page or length")
-    else:
-        if Action == "getList":
-            data = [ json.loads(i) for i in list(g.redis.smembers(key)) ]
+    if Action == "getList":
+        # 获取图片列表
+        sort = request.args.get("sort") or "desc"
+        page = request.args.get("page") or 0
+        length = request.args.get("length") or 10
+        # 参数检查
+        try:
+            page = int(page)
+            length = int(length)
+        except:
+            res.update(code=2, msg="Invalid page or length")
+        else:
+            data = [ json.loads(i) for i in list(g.redis.smembers(picKey)) ]
             if data:
                 data = [ i for i in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else  True) ]
                 data = ListEqualSplit(data, length)
@@ -191,6 +196,17 @@ def api_view():
                     res.update(code=3, msg="IndexOut with page {}".format(page))
             else:
                 res.update(code=4, msg="No data")
+    elif Action == "getInfo":
+        # 获取系统相关信息
+        data = dict(site=g.site, imageNumber=g.redis.scard(picKey))
+        res.update(data=data, code=0)
+    elif Action == "getOne":
+        # 获取随机一张图片
+        res.update(data=json.loads(g.redis.srandmember(picKey)), code=0)
+    elif Action == "setSystem":
+        # 更新系统配置
+        data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github")}
+        res.update(setSystem(g.redis, sysKey, **data))
     logger.debug(res)
     return jsonify(res)
 

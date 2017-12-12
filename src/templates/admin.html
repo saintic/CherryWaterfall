@@ -6,29 +6,43 @@
 <blockquote class="layui-elem-quote">
     当前位置: 控制台
 </blockquote>
-<div class="layui-upload">
-  <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
-  <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
-  <div class="layui-upload-list">
-    <table class="layui-table">
-      <thead>
-        <tr>
-        <th>预览</th>
-        <th>文件名</th>
-        <th>大小</th>
-        <th>状态</th>
-        <th>操作</th>
-      </tr></thead>
-      <tbody id="previewList"></tbody>
-    </table>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+  <ul class="layui-tab-title">
+    <li class="layui-this">上传图片</li>
+    <li>系统配置</li>
+  </ul>
+  <div class="layui-tab-content" style="height: 100px;">
+    <div class="layui-tab-item layui-show">
+      <div class="layui-upload">
+        <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
+        <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
+        <div class="layui-upload-list">
+          <table class="layui-table">
+            <thead>
+              <tr>
+              <th>预览</th>
+              <th>文件名</th>
+              <th>大小</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr></thead>
+            <tbody id="previewList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="layui-tab-item">
+        表单
+    </div>
   </div>
-</div>
+</div> 
+
 {% endblock %}
 
 {% block script %}
 <script>
-layui.use(['upload','layer'], function(){
-    var upload = layui.upload, layer = layui.layer, $ = layui.jquery;
+layui.use(['upload','layer','element'], function(){
+    var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element;
     //多文件列表示例
     //var files;
     var demoListView = $('#previewList'),uploadListIns = upload.render({
