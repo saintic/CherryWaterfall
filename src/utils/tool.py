@@ -78,6 +78,7 @@ def getSystem(rc, key):
         site_Copyright: 站点版权
         author_Email: 作者邮箱
         github: 项目github地址
+        sys_Close: 是否关闭系统 1:关闭 0:开启 关闭后则首页返回400错误码
         """
         if not data.get("site_TitleSuffix"):
             data.update(site_TitleSuffix=u"樱瀑")
@@ -91,8 +92,9 @@ def getSystem(rc, key):
             data.update(author_Email="")
         if not data.get("github"):
             data.update(github="https://github.com/staugur/CherryWaterfall")
+        if not data.get("sys_Close"):
+            data.update(sys_Close=0)
         res.update(data=data)
-    logger.debug(res)
     return res
 
 def setSystem(rc, key, **kwargs):
@@ -105,5 +107,4 @@ def setSystem(rc, key, **kwargs):
         res.update(msg="Update system configure error")
     else:
         res.update(code=0 if success else 1)
-    logger.debug(res)
     return res

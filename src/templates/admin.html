@@ -8,43 +8,88 @@
 </blockquote>
 <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
   <ul class="layui-tab-title">
-    <li class="layui-this">上传图片</li>
-    <li>系统配置</li>
+      <li class="layui-this">系统配置</li>
+      <li>上传图片</li>
   </ul>
   <div class="layui-tab-content" style="height: 100px;">
     <div class="layui-tab-item layui-show">
-      <div class="layui-upload">
-        <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
-        <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
-        <div class="layui-upload-list">
-          <table class="layui-table">
-            <thead>
-              <tr>
-              <th>预览</th>
-              <th>文件名</th>
-              <th>大小</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr></thead>
-            <tbody id="previewList"></tbody>
-          </table>
-        </div>
-      </div>
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">站点标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="site_TitleSuffix" autocomplete="off" placeholder="站点标题后缀" class="layui-input" value="{{ g.site.site_TitleSuffix }}" lay-verify="required">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">订阅标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="site_RssTitle" autocomplete="off" placeholder="站点订阅源标题" class="layui-input" value="{{ g.site.site_RssTitle }}" lay-verify="required">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">许可证</label>
+                <div class="layui-input-block">
+                    <input type="text" name="site_License" autocomplete="off" placeholder="站点许可证" class="layui-input" value="{{ g.site.site_License }}" lay-verify="required">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">版权</label>
+                <div class="layui-input-block">
+                    <input type="text" name="site_Copyright" autocomplete="off" placeholder="站点版权" class="layui-input" value="{{ g.site.site_Copyright }}" lay-verify="required">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱</label>
+                <div class="layui-input-block">
+                    <input type="text" name="author_Email" autocomplete="off" placeholder="作者邮箱" class="layui-input" value="{{ g.site.author_Email }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">GitHub</label>
+                <div class="layui-input-block">
+                    <input type="text" name="github" autocomplete="off" placeholder="项目GitHub地址" class="layui-input" value="{{ g.site.github }}" lay-verify="url">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label">首页访问</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" {% if g.site.sys_Close|int == 0 %}checked=""{% endif %} name="sys_Close" lay-skin="switch" lay-filter="sysCloseSwitch" lay-text="开启|关闭">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn" lay-submit="" lay-filter="setSystemGo">更新配置</button>
+            </div>
+        </form>
     </div>
     <div class="layui-tab-item">
-        表单
+        <div class="layui-upload">
+            <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
+            <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
+            <div class="layui-upload-list">
+                <table class="layui-table">
+                    <thead>
+                        <tr>
+                            <th>预览</th>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewList"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
   </div>
 </div> 
-
 {% endblock %}
 
 {% block script %}
 <script>
-layui.use(['upload','layer','element'], function(){
-    var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element;
-    //多文件列表示例
-    //var files;
+layui.use(['upload','layer','element', 'form'], function(){
+    var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element, form = layui.form;
+    //多文件列表上传
     var demoListView = $('#previewList'),uploadListIns = upload.render({
         elem: '#chooseList'
         ,url: '{{ url_for("upload_view") }}?'+make_url()
@@ -113,6 +158,42 @@ layui.use(['upload','layer','element'], function(){
             }
             console.log(obj.total,obj.successful, obj.aborted); //得到总文件数, 请求成功的文件数, 请求失败的文件数
         }
+    });
+    var sysClose = "{{ g.site.sys_Close }}";
+    //监听指定开关
+    form.on('switch(sysCloseSwitch)', function(data){
+        console.log(data.elem.checked); //开关是否开启，true或者false
+        if (data.elem.checked==true) {
+            sysClose = 0;
+        } else {
+            sysClose = 1;
+        }
+    });
+    //监听提交
+    form.on('submit(setSystemGo)', function(data){
+        field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
+        field['sys_Close'] = sysClose;
+        console.log(field);
+        var params = {Action: "setSystem"};
+        $.ajax({
+            url: "{{ url_for('api_view') }}?"+make_url(params),
+            method: 'POST',
+            datatype: 'json',
+            data: field,
+            success: function(res) {
+                console.log(res);
+                if (res.code==0) {
+                    layer.msg("更新配置成功！");
+                } else {
+                    layer.msg("更新配置失败！");
+                }
+            },
+            error: function(error){
+                console.log(error);
+                layer.alert("服务器异常！");
+            }
+        });
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
 });
 </script>
