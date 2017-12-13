@@ -224,7 +224,7 @@ def api_view():
 def feed_view():
     data = [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
     data = [ i for i in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ][:15]
-    feed = AtomFeed(g.site["site_RssTitle"], feed_url=request.url, url=request.url_root, icon=url_for('static', filename='images/favicon.ico'), author=__author__)
+    feed = AtomFeed(g.site["site_RssTitle"], feed_url=request.url, url=request.url_root, icon=url_for('static', filename='images/favicon.ico', _external=True), author=__author__)
     for img in data:
         feed.add(img['imgUrl'], img['imgUrl'],
                 content_type='text',
