@@ -41,6 +41,8 @@ api = CloudStorage()
 picKey = "{}:Images".format(GLOBAL["ProcessName"])
 #系统配置
 sysKey = "{}:System".format(GLOBAL["ProcessName"])
+#添加一条指向站点图标的路由
+app.add_url_rule('/favicon.ico',redirect_to=url_for('static', filename='images/favicon.ico'))
 
 # 添加模板上下文变量
 @app.context_processor  
