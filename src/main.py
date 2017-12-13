@@ -27,7 +27,7 @@ from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename
 from redis import from_url
 from werkzeug import secure_filename
 from werkzeug.contrib.atom import AtomFeed
-from flask import Flask, request, g, redirect, make_response, url_for, jsonify, render_template, abort
+from flask import Flask, request, g, redirect, make_response, url_for, jsonify, render_template, abort, send_from_directory
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -41,8 +41,6 @@ api = CloudStorage()
 picKey = "{}:Images".format(GLOBAL["ProcessName"])
 #系统配置
 sysKey = "{}:System".format(GLOBAL["ProcessName"])
-#添加一条指向站点图标的路由
-app.add_url_rule('/favicon.ico',redirect_to=url_for('static', filename='images/favicon.ico'))
 
 # 添加模板上下文变量
 @app.context_processor  
@@ -76,6 +74,11 @@ def after_request(response):
 def teardown_request(exception):
     if hasattr(g, "redis"):
         g.redis.connection_pool.disconnect()
+
+@app.route('/favicon.ico')
+def favicon():
+    #添加一条指向站点图标的路由
+    return send_from_directory(os.path.join(app.root_path, 'static', 'images'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/login/')
 def login():
