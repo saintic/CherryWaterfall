@@ -55,7 +55,7 @@ function showPic(imgUrl) {
     layui.use('layer', function() {
         var layer = layui.layer;
         var w = winSize().width - 40, h = winSize().height - 50;
-        layer.open({
+        var index = layer.open({
             type: 1,
             title: false,
             closeBtn: 1,
@@ -63,8 +63,10 @@ function showPic(imgUrl) {
             shadeClose: true,
             maxWidth: w,
             maxHeight: h,
-            content: '<img src="' + imgUrl +'" />'
+            content: '<img src="' + imgUrl +'" />',
+            scrollbar: false,
         });
+        //layer.full(index);
     });
 }
 </script>

@@ -23,7 +23,7 @@ import datetime, SpliceURL, os.path, json, sys
 from config import GLOBAL, SSO, Upyun, REDIS, Sign
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
-from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit, getSystem, setSystem
+from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit, getSystem, setSystem, timestamp_datetime
 from redis import from_url
 from werkzeug import secure_filename
 from werkzeug.contrib.atom import AtomFeed
@@ -229,10 +229,12 @@ def api_view():
 def feed_view():
     data = [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
     data = [ i for i in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ][:15]
-    feed = AtomFeed(g.site["site_RssTitle"], feed_url=request.url, url=request.url_root, icon=url_for('static', filename='images/favicon.ico', _external=True), author=__author__)
+    feed = AtomFeed(g.site["site_RssTitle"], subtitle='Cherry Blossoms', feed_url=request.url, url=request.url_root, icon=url_for('static', filename='images/favicon.ico', _external=True), author=__author__)
     for img in data:
-        feed.add(img['imgUrl'], img['imgUrl'],
-                content_type='text',
+        title = timestamp_datetime(float(img['ctime']))
+        content = u'<img src="{}">'.format(img['imgUrl'])
+        feed.add(title, content,
+                content_type='html',
                 id=img['imgId'],
                 url=img['imgUrl'],
                 author=__author__,

@@ -8,11 +8,31 @@
 </blockquote>
 <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
   <ul class="layui-tab-title">
-      <li class="layui-this">系统配置</li>
-      <li>上传图片</li>
+      <li class="layui-this">上传图片</li>
+      <li>系统配置</li>
   </ul>
   <div class="layui-tab-content" style="height: 100px;">
     <div class="layui-tab-item layui-show">
+        <div class="layui-upload">
+            <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
+            <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
+            <div class="layui-upload-list">
+                <table class="layui-table">
+                    <thead>
+                        <tr>
+                            <th>预览</th>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab-item">
         <form class="layui-form layui-form-pane" action="">
             <div class="layui-form-item">
                 <label class="layui-form-label">站点标题</label>
@@ -60,26 +80,6 @@
                 <button class="layui-btn" lay-submit="" lay-filter="setSystemGo">更新配置</button>
             </div>
         </form>
-    </div>
-    <div class="layui-tab-item">
-        <div class="layui-upload">
-            <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
-            <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
-            <div class="layui-upload-list">
-                <table class="layui-table">
-                    <thead>
-                        <tr>
-                            <th>预览</th>
-                            <th>文件名</th>
-                            <th>大小</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="previewList"></tbody>
-                </table>
-            </div>
-        </div>
     </div>
   </div>
 </div>
