@@ -16,7 +16,7 @@ from config import Upyun
 
 class CloudStorage(upyun.UpYun):
 
-    def __init__(self, timeout=5, endpoint=upyun.ED_AUTO, debug=False):
+    def __init__(self, timeout=8, endpoint=upyun.ED_AUTO, debug=False):
         bucket, username, password = Upyun["bucket"], Upyun["username"], Upyun["password"]
         upyun.UpYun.__init__(self, bucket, username, password, timeout=timeout, endpoint=endpoint, debug=debug)
         self.debug = debug
