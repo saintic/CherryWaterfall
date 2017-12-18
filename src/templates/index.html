@@ -30,13 +30,13 @@ layui.use(['util', 'flow', 'layer'], function(){
         ,done: function(page, next){ //加载下一页
             page -= 1;
             var lis = [];
-            var params = {Action: "getList", page: page, length: 10};
+            var params = {Action: "getList", page: page, length: 20};
             $.get('{{ url_for("api_view") }}?'+make_url(params), function(res){
                 console.log(res);
                 layui.each(res.data, function(index, item){
                     lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)"></div>');
-                }); 
-                next(lis.join(''), page < res.pageCount);    
+                });
+                next(lis.join(''), page < res.pageCount);
             });
         }
     });

@@ -33,9 +33,6 @@ SSO={
 
     "SSO.PROJECT": GLOBAL["ProcessName"],
     #SSO request application.
-
-    "SSO.AllowedUserList": ("taochengwei", )
-    #SSO Allowed User List
 }
 
 REDIS = os.getenv("cherrywaterfall_redis_url")

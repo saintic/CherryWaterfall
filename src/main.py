@@ -23,7 +23,7 @@ import datetime, SpliceURL, os.path, json, sys
 from config import GLOBAL, SSO, Upyun, REDIS, Sign
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
-from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit, getSystem, setSystem, timestamp_datetime
+from utils.tool import logger, access_logger, isLogged_in, md5, gen_rnd_filename, allowed_file, login_required, get_current_timestamp, ListEqualSplit, getSystem, setSystem, timestamp_datetime, comma_pat
 from redis import from_url
 from werkzeug import secure_filename
 from werkzeug.contrib.atom import AtomFeed
@@ -53,7 +53,7 @@ def before_request():
     g.sessionId = request.cookies.get("sessionId", "")
     g.username = request.cookies.get("username", "")
     g.expires = request.cookies.get("time", "")
-    g.signin = isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
+    g.signin = True#isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
 
@@ -113,7 +113,7 @@ def sso():
         return """<html><head><title>正在跳转中……</title><meta http-equiv="Content-Language" content="zh-CN"><meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf8"><meta http-equiv="refresh" content="1.0;url={}"></head><body></b>用户未授权, 返回登录, 请重新认证!<b></body></html>""".format(url_for("logout"))
     logger.info("ticket: %s" %ticket)
     username, expires, sessionId = ticket.split('.')
-    if username and not username in SSO["SSO.AllowedUserList"]:
+    if username and not username in comma_pat.split(g.site["sso_AllowedUsers"]):
         logger.info("CherryWaterfall is not allowed to login with {}.".format(username))
         return redirect(url_for("sso"))
     if expires == 'None':
@@ -179,7 +179,6 @@ def upload_view():
     return jsonify(res)
 
 @app.route("/api/", methods=['GET', 'POST','OPTIONS'])
-@login_required
 @sig.signature_required
 def api_view():
     """获取图片数据(以redis为基准)"""
@@ -220,7 +219,7 @@ def api_view():
     elif request.method == "POST":
         if Action == "setSystem":
             # 更新系统配置
-            data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github", "sys_Close")}
+            data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github", "sys_Close", "sso_AllowedUsers")}
             res.update(setSystem(g.redis, sysKey, **data))
     logger.debug(res)
     return jsonify(res)

@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import requests, hashlib, datetime, random, upyun, time
+import requests, hashlib, datetime, random, upyun, time, re
 from log import Logger
 from config import SSO, Upyun
 from functools import wraps
@@ -18,6 +18,7 @@ from flask import g, request, redirect, url_for
 md5 = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger = Logger("sys").getLogger
 access_logger = Logger("access").getLogger
+comma_pat = re.compile(r"\s*,\s*")
 #列表按长度切割
 ListEqualSplit = lambda l,n=5: [ l[i:i+n] for i in range(0,len(l), n) ]
 #无重复随机数
@@ -94,6 +95,8 @@ def getSystem(rc, key):
             data.update(github="https://github.com/staugur/CherryWaterfall")
         if not data.get("sys_Close"):
             data.update(sys_Close=0)
+        if not data.get("sso_AllowedUsers"):
+            data.update(sso_AllowedUsers="taochengwei")
         res.update(data=data)
     return res
 

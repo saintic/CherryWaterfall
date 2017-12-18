@@ -77,6 +77,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label" title="允许SSO登录的用户列表">允许用户</label>
+                <div class="layui-input-block">
+                    <input type="text" name="sso_AllowedUsers" autocomplete="off" placeholder='SSO允许登录的用户列表，格式是: "user1, user2, ..."' class="layui-input" value="{{ g.site.sso_AllowedUsers }}" lay-verify="required" title='格式是: "user1, user2, ..."'>
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <button class="layui-btn" lay-submit="" lay-filter="setSystemGo">更新配置</button>
             </div>
         </form>
