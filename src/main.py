@@ -53,7 +53,7 @@ def before_request():
     g.sessionId = request.cookies.get("sessionId", "")
     g.username = request.cookies.get("username", "")
     g.expires = request.cookies.get("time", "")
-    g.signin = True#isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
+    g.signin = isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
 
