@@ -83,6 +83,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label" title="图片同时上传最大数量限制">上传限制</label>
+                <div class="layui-input-block">
+                    <input type="number" name="site_UploadMax" autocomplete="off" placeholder='' class="layui-input" value="{{ g.site.site_UploadMax }}" lay-verify="required|number">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <button class="layui-btn" lay-submit="" lay-filter="setSystemGo">更新配置</button>
             </div>
         </form>
@@ -93,7 +99,6 @@
 
 {% block script %}
 <script>
-layui.use(['upload','layer','element', 'form'], function(){
     var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element, form = layui.form;
     //多文件列表上传
     var demoListView = $('#previewList'),uploadListIns = upload.render({
@@ -103,11 +108,10 @@ layui.use(['upload','layer','element', 'form'], function(){
         ,accept: 'images'
         ,multiple: true
         ,auto: false
-        ,number: 15
+        ,number: {{ g.site.site_UploadMax|int }}
         ,size: 2048
         ,bindAction: '#uploadAction'
         ,choose: function(obj){   
-            //files = obj.pushFile(); //将每次选择的文件追加到文件队列
             var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
             //读取本地文件
             obj.preview(function(index, file, result){
@@ -201,6 +205,5 @@ layui.use(['upload','layer','element', 'form'], function(){
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
-});
 </script>
 {% endblock %}

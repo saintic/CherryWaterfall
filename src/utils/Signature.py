@@ -34,7 +34,8 @@ class Signature(object):
             except:
                 return False
             else:
-                if req_timestamp <= get_current_timestamp():
+                now_timestamp = get_current_timestamp()
+                if req_timestamp <= now_timestamp:
                     return True
         return False
 

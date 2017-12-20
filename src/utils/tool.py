@@ -97,6 +97,8 @@ def getSystem(rc, key):
             data.update(sys_Close=0)
         if not data.get("sso_AllowedUsers"):
             data.update(sso_AllowedUsers="taochengwei")
+        if not data.get("site_UploadMax"):
+            data.update(site_UploadMax=0)
         res.update(data=data)
     return res
 
