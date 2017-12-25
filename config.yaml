@@ -1,0 +1,9 @@
+name: cherrywaterfall
+version: 1
+handlers:
+- url: /favicon.ico
+  static_path: static/imgaes/favicon.ico
+  gzip: on
+- url: /static/
+  static_path: static
+  gzip: on

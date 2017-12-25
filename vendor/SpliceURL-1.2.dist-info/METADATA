@@ -1,0 +1,22 @@
+Metadata-Version: 2.0
+Name: SpliceURL
+Version: 1.2
+Summary: Splice, Split and Modify URL
+Home-page: https://github.com/staugur/SpliceURL
+Author: Mr.tao <staugur@saintic.com>
+Author-email: staugur@saintic.com
+License: MIT
+Download-URL: https://github.com/saintic/SpliceURL/releases/tag/v1.2
+Keywords: URL,splice,split,modify
+Platform: UNKNOWN
+Classifier: Environment :: Other Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+
+UNKNOWN
+
+
