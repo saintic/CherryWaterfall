@@ -15,6 +15,7 @@
 <body>
 <ul class="layui-nav">
     <li class="layui-nav-item"><a href="{{ url_for('index_view') }}">主页<span class="layui-badge layui-bg-green">{%- set imgNum = g.redis.scard(picKey) %}{% if imgNum > 99 %}99+{% else %}{{ imgNum }}{% endif %}</span></a></li>
+    <li class="layui-nav-item"><a href="javascript:showPhoto()">相册<span class="layui-badge-dot"></span></a></li>
     <li class="layui-nav-item"><a href="{{ url_for('feed_view') }}" target="_blank">订阅<span class="layui-badge-dot"></span></a></li>
     {% if g.signin %}
     <li class="layui-nav-item"><a href="{{ url_for('admin_view') }}">控制台</a></li>
@@ -68,6 +69,16 @@
         uri += 'signature=' + _sign(params);
         //console.log(uri);
         return uri
+    }
+    function showPhoto() {
+        var layer = layui.layer, $ = layui.jquery;
+        $.getJSON("{{ url_for('api_view') }}?"+make_url({Action: "getPhoto"}), function(json){
+            console.log(json);
+            layer.photos({
+                photos: json
+                ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+            });
+        }); 
     }
 </script>
 {% block script %}

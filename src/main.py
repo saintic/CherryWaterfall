@@ -20,6 +20,7 @@ __email__   = "staugur@saintic.com"
 __date__    = "2017-12-05"
 
 import datetime, SpliceURL, os.path, json, sys
+from random import randint
 from config import GLOBAL, SSO, Upyun, REDIS, Sign
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
@@ -184,6 +185,9 @@ def api_view():
     """获取图片数据(以redis为基准)"""
     res = dict(code=-1, msg=None)
     Action = request.args.get("Action")
+    # 公共函数
+    _get_pics = lambda: [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
+
     # GET请求段
     if request.method == "GET":
         if Action == "getList":
@@ -198,7 +202,7 @@ def api_view():
             except:
                 res.update(code=2, msg="Invalid page or length")
             else:
-                data = [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
+                data = _get_pics()
                 if data:
                     data = [ i for i in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True) ]
                     data = ListEqualSplit(data, length)
@@ -216,6 +220,10 @@ def api_view():
         elif Action == "getOne":
             # 获取随机一张图片
             res.update(data=g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], g.redis.srandmember(picKey))), code=0)
+        elif Action == "getPhoto":
+            # 返回相册格式数据
+            data = _get_pics()
+            res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_datetime(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"], "thumb": ""} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ])
     elif request.method == "POST":
         if Action == "setSystem":
             # 更新系统配置

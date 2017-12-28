@@ -35,7 +35,7 @@
                 success: function (res) {
                     console.log(res);
                     layui.each(res.data, function(index, item){
-                        lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)"></div>');
+                        lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)" lay-id="'+item.imgId+'"></div>');
                     });
                     next(lis.join(''), page < res.pageCount);
                 },
@@ -61,6 +61,7 @@
             shadeClose: true,
             maxWidth: w,
             maxHeight: h,
+            scrollbar: false,
             content: '<img src="' + imgUrl +'" />'
         });
     }
