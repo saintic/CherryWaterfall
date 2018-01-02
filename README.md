@@ -1,1 +1,1 @@
-# CherryWaterfall
+# CherryWaterfall Chrome Plugin
