@@ -187,7 +187,6 @@ def api_view():
     Action = request.args.get("Action")
     # 公共函数
     _get_pics = lambda: [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
-
     # GET请求段
     if request.method == "GET":
         if Action == "getList":
