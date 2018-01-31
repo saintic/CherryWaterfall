@@ -50,3 +50,6 @@
   .footer-demo{position: static; height: auto; line-height: 30px;}
   .footer-demo p{height: auto;}
 }
+
+.picView { overflow:hidden }
+.picView img{ max-height: 750px; }
