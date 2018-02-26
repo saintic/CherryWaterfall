@@ -4,15 +4,21 @@
 
 {% block content %}
 <blockquote class="layui-elem-quote">
-    当前位置: 控制台
+    <i>当前位置：控制台</i><br><i>当前标签：{{ request.args.get("label", labelDefault) }}</i>
 </blockquote>
-<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+<div class="layui-tab layui-tab-brief" lay-filter="adminTab">
   <ul class="layui-tab-title">
-      <li class="layui-this">上传图片</li>
-      <li>系统配置</li>
+      <li class="layui-this" lay-id="upload">上传图片</li>
+      <li lay-id="system">系统配置</li>
+      <li lay-id="label">分类管理</li>
   </ul>
   <div class="layui-tab-content" style="height: 100px;">
     <div class="layui-tab-item layui-show">
+        <!--<blockquote class="layui-elem-quote"></blockquote>-->
+        <fieldset class="layui-elem-field">
+            <legend>请先选择图片上传的标签</legend>
+            <div class="layui-field-box" id="uploadLabelArea"></div>
+        </fieldset>
         <div class="layui-upload">
             <button type="button" class="layui-btn layui-btn-normal" id="chooseList">选择图片</button> 
             <button type="button" class="layui-btn" id="uploadAction"><i class="layui-icon">&#xe67c;</i>开始上传</button>
@@ -89,21 +95,46 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <button class="layui-btn" lay-submit="" lay-filter="setSystemGo">更新配置</button>
+                <button class="layui-btn" lay-submit lay-filter="setSystemGo">更新配置</button>
             </div>
         </form>
+    </div>
+    <div class="layui-tab-item">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <button class="layui-btn" lay-submit lay-filter="setLabel">添加标签</button>
+                <div class="layui-input-inline">
+                    <input type="text" name="label" autocomplete="off" placeholder="标签名称" class="layui-input" lay-verify="required">
+                </div>
+            </div>
+        </form>
+        <table id="labelManager" lay-filter="label"></table>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
+<script type="text/html" id="labelBar">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+</script>
 <script>
-    var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element, form = layui.form;
+    var upload = layui.upload, layer = layui.layer, $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table, util = layui.util;
+    //显示当前tab
+    if(location.hash){
+        element.tabChange('adminTab', location.hash.replace(/^#/, ''));
+    }
+    //监听tab切换
+    element.on('tab(adminTab)', function(){
+        var othis = $(this), layid = othis.attr('lay-id');
+        if(layid){
+            location.hash = layid;
+        }
+    });
     //多文件列表上传
-    var demoListView = $('#previewList'),uploadListIns = upload.render({
+    var demoListView = $('#previewList'), uploadListIns = upload.render({
         elem: '#chooseList'
-        ,url: '{{ url_for("upload_view") }}?'+make_url()
+        ,url: '{{ url_for("upload_view") }}?'+make_url({label: "{{ request.args.get('label', labelDefault) }}"})
         ,method: 'POST'
         ,accept: 'images'
         ,multiple: true
@@ -145,7 +176,6 @@
             }
         }
         ,done: function(res, index, upload){
-            console.log(res);
             if(res.code == 0){ //上传成功
                 var tr = demoListView.find('tr#upload-'+ index),tds = tr.children();
                 tds.eq(3).html('<span style="color: #5FB878;">上传成功</span>');
@@ -164,9 +194,8 @@
         }
         ,allDone: function(obj){ //当文件全部被提交后，才触发
             if (obj.total==obj.successful) {
-                layer.msg("全部上传成功！");
+                layer.msg("已全部上传！");
             }
-            console.log(obj.total,obj.successful, obj.aborted); //得到总文件数, 请求成功的文件数, 请求失败的文件数
         }
     });
     var sysClose = "{{ g.site.sys_Close }}";
@@ -204,6 +233,98 @@
             }
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+    var labels = new Array();
+    function setLabelArea(labels) {
+        // 渲染标签区域
+        var str = '';
+        for (var index = 0, length = labels.length; index < length ; index++) {
+            str += '<a href="{{ url_for("admin_view") }}?label='+ labels[index] +'"><span class="layui-badge layui-bg-green">' + labels[index] + '</span></a>&nbsp;&nbsp;';
+        }
+        $('#uploadLabelArea').html(str);
+    }
+    //定义渲染应用列表函数
+    var options = {
+            elem: "#labelManager"
+            ,url: '{{ url_for("api_view") }}?'+make_url({Action:"getLabel", is_layui_table: true}) //数据接口
+            ,width: 800
+            ,page: true //开启分页
+            ,cellMinWidth: 30
+            ,loading: true
+            ,cols: [[ //表头
+                {field: 'LAY_TABLE_INDEX', title: '序号'}
+                ,{field: 'label', title: '标签'}
+                ,{field: 'user', title: '创建人'}
+                ,{field: 'ctime', title: '创建时间', templet: function(d) {
+                    return util.toDateString(d.ctime*1000);
+                }}
+                ,{fixed: 'right', align:'center', toolbar: '#labelBar'} //这里的toolbar值是模板元素的选择器
+            ]]
+            ,done: function(res){
+                for (var index = 0, length = res.data.length; index < length ; index++) {
+                    labels[index] = res.data[index].label;
+                }
+                setLabelArea(labels);
+            }
+    };
+    //初始化渲染表格
+    table.render(options);
+    //监听提交
+    form.on('submit(setLabel)', function(data){
+        $.ajax({
+            url: "{{ url_for('api_view') }}?"+make_url({Action: "setLabel"}),
+            method: 'POST',
+            datatype: 'json',
+            data: {"label": data.field.label},
+            success: function(res) {
+                if (res.code==0) {
+                    layer.msg("添加标签成功！");
+                    //添加元素并重新渲染
+                    labels.push(data.field.label);
+                    setLabelArea(labels);
+                    //重载表格
+                    table.reload("labelManager", options);
+                } else {
+                    layer.msg(res.msg);
+                }
+            },
+            error: function(error){
+                layer.msg("服务器异常！");
+            }
+        });
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+    //监听工具条
+    table.on('tool(label)', function(obj){ //注：tool是工具条事件名，userAppTable是table原始容器的属性 lay-filter="对应的值"
+        var data = obj.data; //获得当前行数据
+        var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+        if(layEvent === 'del'){ //删除
+            layer.confirm('真的删除 '+ data.label+' 标签么？', {icon: 3, title:'温馨提示'}, function(index){
+                layer.close(index);
+                //向服务端发送删除指令
+                $.ajax({
+                    url: '{{ url_for("api_view") }}?'+make_url({Action:"delLabel"}),
+                    method: "DELETE",
+                    data: {"label": data.label},
+                    success: function(res) {
+                        if (res.code==0) {
+                            layer.msg("标签已删除")
+                            //删除对应行（tr）的DOM结构，并更新缓存
+                            obj.del();
+                            //删除标签区域中的文字并重新渲染
+                            var index = labels.indexOf(data.label);
+                            labels.splice(index, 1);
+                            setLabelArea(labels);
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    },
+                    error: function(error){
+                        layer.msg("服务器异常！");
+                    }
+                });
+            });
+        }
     });
 </script>
 {% endblock %}

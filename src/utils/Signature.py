@@ -26,7 +26,7 @@ class Signature(object):
 
     def _check_req_timestamp(self, req_timestamp):
         """ 校验时间戳
-        @pram req_timestamp str,int: 请求参数中的时间戳(10位)
+        @pram req_timestamp int: 请求参数中的时间戳(10位)
         """
         if len(str(req_timestamp)) == 10:
             try:
@@ -75,7 +75,7 @@ class Signature(object):
         res = dict(msg=None, success=False)
         try:
             req_version = req_params["version"]
-            req_timestamp = req_params["timestamp"]
+            req_timestamp = int(req_params["timestamp"])
             req_accesskey_id = req_params["accesskey_id"]
             req_signature = req_params["signature"]
         except KeyError,e:
@@ -102,13 +102,18 @@ class Signature(object):
                     res.update(msg="Invalid timestamp")
             else:
                 res.update(msg="Invalid version")
-        logger.debug(res)
+        #logger.debug(res)
         return res
 
     def signature_required(self, f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             params = request.args.to_dict()
+            if "is_layui_table" in params:
+                if "page" in params:
+                    params.pop("page")
+                if "limit" in params:
+                    params.pop("limit")
             res = self._verification(params)
             if res["success"] is True:
                 return f(*args, **kwargs)

@@ -4,7 +4,7 @@
 
 {% block content %}
     <blockquote class="layui-elem-quote">
-        当前位置: 主页
+        <i>当前位置：主页</i><br><i>当前标签：{{ request.args.get("label", "全部") }}</i><div id="listLabelArea"></div>
     </blockquote>
     <div class="container">
         <div class="waterfall" id="layImages">
@@ -21,6 +21,18 @@
     var layer = layui.layer;
     //右下角工具
     util.fixbar();
+    //记载标签列表
+    $.ajax({
+        url: '{{ url_for("api_view") }}?'+make_url({Action: "getLabel"}),
+        success: function (res) {
+            // 渲染标签区域
+            var str = '';
+            for (var index = 0, length = res.data.length; index < length ; index++) {
+                str += '<a href="{{ url_for("index_view") }}?label='+ res.data[index].label +'"><span class="layui-badge layui-bg-green">' + res.data[index].label + '</span></a>&nbsp;&nbsp;';
+            }
+            $('#listLabelArea').html(str);
+        },
+    });
     //流加载图片
     flow.load({
         elem: '#layImages'
@@ -29,7 +41,7 @@
         ,done: function(page, next){ //加载下一页
             page -= 1;
             var lis = [];
-            var params = {Action: "getList", page: page, length: 20};
+            var params = {Action: "getList", page: page, length: 20, label: "{{ request.args.get('label', '') }}"};
             $.ajax({
                 url: '{{ url_for("api_view") }}?'+make_url(params),
                 success: function (res) {
@@ -43,7 +55,6 @@
         }
     });
     function showPic(imgUrl) {
-        console.log(imgUrl);
         var winSize = function() {
             var e = window, a = 'inner';
             if (!('innerWidth' in window )){

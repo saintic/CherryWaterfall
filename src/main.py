@@ -42,11 +42,14 @@ api = CloudStorage()
 picKey = "{}:Images".format(GLOBAL["ProcessName"])
 #系统配置
 sysKey = "{}:System".format(GLOBAL["ProcessName"])
+#标签索引
+labelKey = "{}:labels".format(GLOBAL['ProcessName'])
+labelDefault = u"未分类"
 
 # 添加模板上下文变量
 @app.context_processor  
-def GlobalTemplateVariables():  
-    data = {"Sign": Sign, "picKey": picKey}
+def GlobalTemplateVariables():
+    data = {"Sign": Sign, "picKey": picKey, "labelDefault": labelDefault}
     return data
 
 @app.before_request
@@ -73,6 +76,8 @@ def after_request(response):
 
 @app.teardown_request
 def teardown_request(exception):
+    if exception:
+        logger.error(exception, exc_info=True)
     if hasattr(g, "redis"):
         g.redis.connection_pool.disconnect()
 
@@ -148,38 +153,45 @@ def admin_view():
 @sig.signature_required
 def upload_view():
     res = dict(code=-1, msg=None)
-    logger.debug(request.files)
-    f = request.files.get('file')
-    if f and allowed_file(f.filename):
-        filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1]) #随机命名
-        basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
-        imgUrl = os.path.join(basedir, filename)
-        try:
-            upres = api.put(imgUrl, f.stream.read())
-        except Exception,e:
-            logger.error(e, exc_info=True)
-            res.update(code=2, msg="Storage failure")
-        else:
-            imgId = md5(filename)
-            imgUrl = Upyun['dn'].strip("/") + imgUrl
-            upres.update(ctime=get_current_timestamp(), imgUrl=imgUrl, imgId=imgId)
+    label = request.args.get("label")
+    _has_label = lambda label: g.redis.sismember(labelKey, label) and g.redis.exists("{}:label:{}".format(GLOBAL['ProcessName'], label)) or label == labelDefault
+    if not label:
+        label = labelDefault
+    if label and _has_label(label):
+        f = request.files.get('file')
+        if f and allowed_file(f.filename):
+            filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1]) #随机命名
+            basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
+            imgUrl = os.path.join(basedir, filename)
             try:
-                pipe = g.redis.pipeline()
-                pipe.sadd(picKey, imgId)
-                pipe.hmset("{}:{}".format(GLOBAL['ProcessName'], imgId), upres)
-                pipe.execute()
+                upres = api.put(imgUrl, f.stream.read())
             except Exception,e:
                 logger.error(e, exc_info=True)
-                res.update(code=0, msg="It has been uploaded, but the server has encountered an unknown error")
+                res.update(code=2, msg="Storage failure")
             else:
-                logger.info("Upload to Upyun file saved, its url is %s, result is %s, imgId is %s" %(imgUrl, upres, imgId))
-                res.update(code=0, imgUrl=imgUrl)
+                imgId = md5(filename)
+                imgUrl = Upyun['dn'].strip("/") + imgUrl
+                upres.update(ctime=get_current_timestamp(), imgUrl=imgUrl, imgId=imgId, label=label)
+                try:
+                    pipe = g.redis.pipeline()
+                    pipe.sadd(picKey, imgId)
+                    pipe.hmset("{}:{}".format(GLOBAL['ProcessName'], imgId), upres)
+                    pipe.hincrby("{}:label:{}".format(GLOBAL['ProcessName'], label), "imgNum")
+                    pipe.execute()
+                except Exception,e:
+                    logger.error(e, exc_info=True)
+                    res.update(code=0, msg="It has been uploaded, but the server has encountered an unknown error")
+                else:
+                    logger.info("Upload to Upyun file saved, its url is %s, result is %s, imgId is %s" %(imgUrl, upres, imgId))
+                    res.update(code=0, imgUrl=imgUrl)
+        else:
+            res.update(code=1, msg="Unsuccessfully obtained file or format is not allowed")
     else:
-        res.update(code=1, msg="Unsuccessfully obtained file or format is not allowed")
+        res.update(code=2, msg="Invalid label")
     logger.info(res)
     return jsonify(res)
 
-@app.route("/api/", methods=['GET', 'POST','OPTIONS'])
+@app.route("/api/", methods=['GET', 'POST','OPTIONS', 'DELETE', 'PUT'])
 @sig.signature_required
 def api_view():
     """获取图片数据(以redis为基准)"""
@@ -187,6 +199,35 @@ def api_view():
     Action = request.args.get("Action")
     # 公共函数
     _get_pics = lambda: [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(picKey)) ]
+    _get_label = lambda: [ g.redis.hgetall("{}:label:{}".format(GLOBAL['ProcessName'], label)) for label in list(g.redis.smembers(labelKey)) ]
+    _has_label = lambda label: g.redis.sismember(labelKey, label) and g.redis.exists("{}:label:{}".format(GLOBAL['ProcessName'], label))
+    def _set_label(label, user):
+        """新建标签"""
+        try:
+            pipe = g.redis.pipeline()
+            pipe.sadd(labelKey, label)
+            pipe.hmset("{}:label:{}".format(GLOBAL['ProcessName'], label), dict(user=user, ctime=get_current_timestamp(), label=label))
+            pipe.execute()
+        except Exception,e:
+            logger.error(e, exc_info=True)
+            return False
+        else:
+            return True
+    def _del_label(label):
+        """删除标签"""
+        imgNum = int(g.redis.hget("{}:label:{}".format(GLOBAL['ProcessName'], label), "imgNum") or 0)
+        if imgNum > 0:
+            return False
+        try:
+            pipe = g.redis.pipeline()
+            pipe.srem(labelKey, label)
+            pipe.delete("{}:label:{}".format(GLOBAL['ProcessName'], label))
+            pipe.execute()
+        except Exception,e:
+            logger.error(e, exc_info=True)
+            return False
+        else:
+            return True
     # GET请求段
     if request.method == "GET":
         if Action == "getList":
@@ -194,6 +235,7 @@ def api_view():
             sort = request.args.get("sort") or "desc"
             page = request.args.get("page") or 0
             length = request.args.get("length") or 10
+            label = request.args.get("label")
             # 参数检查
             try:
                 page = int(page)
@@ -203,11 +245,14 @@ def api_view():
             else:
                 data = _get_pics()
                 if data:
-                    data = [ i for i in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True) ]
+                    data = sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True)
+                    if label:
+                        data = [ i for i in data if i.get("label", labelDefault) == label ]
+                    count = len(data)
                     data = ListEqualSplit(data, length)
                     pageCount = len(data)
                     if page < pageCount:
-                        res.update(code=0, data=data[page], pageCount=pageCount, page=page, length=length)
+                        res.update(code=0, data=data[page], pageCount=pageCount)
                     else:
                         res.update(code=3, msg="IndexOut with page {}".format(page))
                 else:
@@ -223,11 +268,45 @@ def api_view():
             # 返回相册格式数据
             data = _get_pics()
             res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_datetime(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"], "thumb": ""} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ])
+        elif Action == "getLabel":
+            # 定义参数
+            sort = request.args.get("sort") or "desc"
+            try:
+                data = _get_label()
+                if not data:
+                    data = []
+                data.append(dict(label=labelDefault, user="system", ctime=""))
+                if data and isinstance(data, list):
+                    data = [i for i in sorted(data, reverse=False if sort == "asc" else True)]
+            except Exception,e:
+                logger.error(e, exc_info=True)
+                res.update(code=1, msg="Unknown error")
+            else:
+                res.update(code=0, data=data)
     elif request.method == "POST":
         if Action == "setSystem":
             # 更新系统配置
             data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github", "sys_Close", "sso_AllowedUsers", "site_UploadMax")}
             res.update(setSystem(g.redis, sysKey, **data))
+        elif Action == "setLabel":
+            label = request.form.get("label")
+            if label and not _has_label(label):
+                if _set_label(label=label, user=g.username):
+                    res.update(code=0)
+                else:
+                    res.update(msg="Add label failed", code=5)
+            else:
+                res.update(msg="Invalid label", code=6)
+    elif request.method == "DELETE":
+        if Action == "delLabel":
+            label = request.form.get("label")
+            if label and _has_label(label):
+                if _del_label(label):
+                    res.update(code=0)
+                else:
+                    res.update(msg="Del label failed", code=7)
+            else:
+                res.update(msg="Invalid label", code=8)
     logger.debug(res)
     return jsonify(res)
 
