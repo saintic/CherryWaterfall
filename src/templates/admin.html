@@ -141,7 +141,7 @@
         ,multiple: true
         ,auto: false
         ,number: {{ g.site.site_UploadMax|int }}
-        ,size: 2048
+        ,size: 0
         ,bindAction: '#uploadAction'
         ,choose: function(obj){   
             var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
