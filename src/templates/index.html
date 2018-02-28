@@ -19,22 +19,21 @@
     var util = layui.util;
     var flow = layui.flow;
     var layer = layui.layer;
-     if (typeof String.prototype.startsWith != 'function')   {
-       String.prototype.startsWith = function (str){  
-          return this.slice(0, str.length) == str;  
-       };  
-     }  
-　　　　  
-     //判断当前字符串是否以str结束  
-     if (typeof String.prototype.endsWith != 'function') {  
-       String.prototype.endsWith = function (str){  
-          return this.slice(-str.length) == str;  
-       };  
-     }  
-  
+    //判断当前字符串是否以str开始
+    if (typeof String.prototype.startsWith != 'function')   {
+        String.prototype.startsWith = function (str){
+            return this.slice(0, str.length) == str;
+        };
+    }
+    //判断当前字符串是否以str结束
+    if (typeof String.prototype.endsWith != 'function') {
+        String.prototype.endsWith = function (str){
+            return this.slice(-str.length) == str; 
+        };
+    }
     //右下角工具
     util.fixbar();
-    //记载标签列表
+    //加载标签列表
     $.ajax({
         url: '{{ url_for("api_view") }}?'+make_url({Action: "getLabel"}),
         success: function (res) {
