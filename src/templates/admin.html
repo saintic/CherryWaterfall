@@ -89,9 +89,15 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label" title="图片同时上传最大数量限制">上传限制</label>
+                <label class="layui-form-label" title="图片同时上传最大数量限制">上传数量</label>
                 <div class="layui-input-block">
                     <input type="number" name="site_UploadMax" autocomplete="off" placeholder='' class="layui-input" value="{{ g.site.site_UploadMax }}" lay-verify="required|number">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" title="图片大小限制，单位KB">上传大小</label>
+                <div class="layui-input-block">
+                    <input type="number" name="site_UploadSize" autocomplete="off" placeholder='' class="layui-input" value="{{ g.site.site_UploadSize }}" lay-verify="required|number">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -141,7 +147,7 @@
         ,multiple: true
         ,auto: false
         ,number: {{ g.site.site_UploadMax|int }}
-        ,size: 0
+        ,size: {{ g.site.site_UploadSize|int }}
         ,bindAction: '#uploadAction'
         ,choose: function(obj){   
             var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列

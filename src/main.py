@@ -267,7 +267,7 @@ def api_view():
         elif Action == "getPhoto":
             # 返回相册格式数据
             data = _get_pics()
-            res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_datetime(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"], "thumb": ""} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ])
+            res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_datetime(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"]} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ])
         elif Action == "getLabel":
             # 定义参数
             sort = request.args.get("sort") or "desc"
@@ -286,7 +286,7 @@ def api_view():
     elif request.method == "POST":
         if Action == "setSystem":
             # 更新系统配置
-            data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github", "sys_Close", "sso_AllowedUsers", "site_UploadMax")}
+            data = {k: v for k, v in request.form.iteritems() if k in ("site_TitleSuffix", "site_RssTitle", "site_License", "site_Copyright", "author_Email", "github", "sys_Close", "sso_AllowedUsers", "site_UploadMax", "site_UploadSize")}
             res.update(setSystem(g.redis, sysKey, **data))
         elif Action == "setLabel":
             label = request.form.get("label")

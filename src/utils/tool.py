@@ -88,7 +88,7 @@ def getSystem(rc, key):
         if not data.get("site_License"):
             data.update(site_License="MIT")
         if not data.get("site_Copyright"):
-            data.update(site_Copyright="Copyright © 2017.")
+            data.update(site_Copyright="Copyright © {year}".format(year=datetime.datetime.now().year))
         if not data.get("author_Email"):
             data.update(author_Email="")
         if not data.get("github"):
@@ -99,6 +99,8 @@ def getSystem(rc, key):
             data.update(sso_AllowedUsers="taochengwei")
         if not data.get("site_UploadMax"):
             data.update(site_UploadMax=0)
+        if not data.get("site_UploadSize"):
+            data.update(site_UploadSize=2048)
         res.update(data=data)
     return res
 
