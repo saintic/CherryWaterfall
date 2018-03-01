@@ -192,6 +192,7 @@ def upload_view():
     return jsonify(res)
 
 @app.route("/api/", methods=['GET', 'POST','OPTIONS', 'DELETE', 'PUT'])
+@login_required
 @sig.signature_required
 def api_view():
     """获取图片数据(以redis为基准)"""
