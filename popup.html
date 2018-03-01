@@ -3,9 +3,14 @@
 <head>
     <title>CherryWaterfall</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    <style type="text/css">
+        .picView img { max-width:764px; width:expression(document.body.clientWidth>764?"764px":"auto"); overflow:hidden; }
+        .picView span { min-width: 120px; display: block; margin:0 auto; text-align: center; }
+        .picView video { max-width:764px; width:expression(document.body.clientWidth>764?"764px":"auto"); overflow:hidden; }
+    </style>
 </head>
 <body>
-    <div id="picView"></div>
+    <div id="picView" class="picView"></div>
     <script src="js/jquery.min.js"></script>
     <script src="js/md5.min.js"></script>
     <script src="js/popup.js"></script>

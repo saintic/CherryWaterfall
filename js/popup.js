@@ -1,6 +1,12 @@
 var version = "v1";
 var accesskey_id = "accesskey_id";
 var accesskey_secret = "accesskey_secret";
+//判断当前字符串是否以str结束
+if (typeof String.prototype.endsWith != 'function') {
+    String.prototype.endsWith = function (str){
+        return this.slice(-str.length) == str;
+    };
+}
 function _sign(params) {
     /*
         @params object: uri请求参数(包含除signature外的公共参数)
@@ -44,12 +50,21 @@ function make_url(params) {
     //console.log(uri);
     return uri
 }
+
 $.ajax({
     url:'http://127.0.0.1:13141/api/?'+make_url({Action: "getOne"}),
     success:function(res){
         console.log(res);
         if (res.code==0) {
-            $('#picView').html('<img src="'+res.data.imgUrl+'" width="'+res.data.width+'px" height="'+res.data.height+'px" max-width="800px" max-height="600px">');
+            // 判定imgUrl是否是视频格式文件
+            if (res.data.imgUrl.endsWith(".mp4")===true) {
+                var str = '<video controls="controls" autobuffer="autobuffer"><source src="'+res.data.imgUrl+'" type="video/mp4"></source></video>';
+            } else {
+                var str = '<img src="'+res.data.imgUrl+'" />';
+            }
+            $('#picView').html(str);
+        } else {
+            $('#picView').html('<span><b>'+res.code+'</b>: '+res.msg+'</span>');
         }
     }
 });
