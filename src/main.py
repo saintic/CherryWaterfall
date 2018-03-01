@@ -276,7 +276,9 @@ def api_view():
                 data = _get_label()
                 if not data:
                     data = []
-                data.append(dict(label=labelDefault, user="system", ctime=""))
+                labelDefaultData = g.redis.hgetall("{}:label:{}".format(GLOBAL['ProcessName'], labelDefault))
+                labelDefaultData.update(label=labelDefault, user="system", ctime="")
+                data.append(labelDefaultData)
                 if data and isinstance(data, list):
                     data = [i for i in sorted(data, reverse=False if sort == "asc" else True)]
             except Exception,e:
