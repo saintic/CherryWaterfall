@@ -28,7 +28,7 @@
     //判断当前字符串是否以str结束
     if (typeof String.prototype.endsWith != 'function') {
         String.prototype.endsWith = function (str){
-            return this.slice(-str.length) == str; 
+            return this.slice(-str.length) == str;
         };
     }
     //右下角工具
@@ -61,7 +61,7 @@
                     layui.each(res.data, function(index, item){
                         // 判定imgUrl是否是视频格式文件
                         if (item.imgUrl.endsWith(".mp4")===true) {
-                            lis.push('<div class="item"><video width="100%" height="100%" controls="controls" autobuffer="autobuffer"  autoplay="autoplay" loop="loop"><source src="'+item.imgUrl+'" type="video/mp4"></source></video></div>');
+                            lis.push('<div class="item"><video width="100%" height="100%" controls="controls" autobuffer="autobuffer"><source src="'+item.imgUrl+'" type="video/mp4"></source></video></div>');
                         } else {
                             lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)" lay-id="'+item.imgId+'"></div>');
                         }

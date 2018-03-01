@@ -13,7 +13,7 @@ import requests, hashlib, datetime, random, upyun, time, re
 from log import Logger
 from config import SSO, Upyun
 from functools import wraps
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, jsonify
 
 md5 = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger = Logger("sys").getLogger
@@ -50,6 +50,8 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not g.signin:
+            if request.endpoint == "api_view":
+                return jsonify(msg="Please login first", code=403)
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function

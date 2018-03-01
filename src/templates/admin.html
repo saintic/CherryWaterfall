@@ -143,7 +143,7 @@
         ,url: '{{ url_for("upload_view") }}?'+make_url({label: "{{ request.args.get('label', labelDefault) }}"})
         ,method: 'POST'
         ,accept: 'images'
-        ,exts: 'jpg|png|gif|bmp|jpeg|mp4'
+        ,exts: 'jpg|png|gif|jpeg|mp4'
         ,multiple: true
         ,auto: false
         ,number: {{ g.site.site_UploadMax|int }}
