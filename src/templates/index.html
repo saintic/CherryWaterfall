@@ -53,7 +53,7 @@
         ,done: function(page, next){ //加载下一页
             page -= 1;
             var lis = [];
-            var params = {Action: "getList", page: page, length: 20, label: "{{ request.args.get('label', '') }}"};
+            var params = {Action: "getList", page: page, limit: "{{ request.args.get('limit', 20) }}", label: "{{ request.args.get('label', '') }}"};
             $.ajax({
                 url: '{{ url_for("api_view") }}?'+make_url(params),
                 success: function (res) {

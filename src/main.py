@@ -235,14 +235,14 @@ def api_view():
             # 获取图片列表
             sort = request.args.get("sort") or "desc"
             page = request.args.get("page") or 0
-            length = request.args.get("length") or 10
+            limit = request.args.get("limit") or 10
             label = request.args.get("label")
             # 参数检查
             try:
                 page = int(page)
-                length = int(length)
+                limit = int(limit)
             except:
-                res.update(code=2, msg="Invalid page or length")
+                res.update(code=2, msg="Invalid page or limit")
             else:
                 data = _get_pics()
                 if data:
@@ -250,7 +250,7 @@ def api_view():
                     if label:
                         data = [ i for i in data if i.get("label", labelDefault) == label ]
                     count = len(data)
-                    data = ListEqualSplit(data, length)
+                    data = ListEqualSplit(data, limit)
                     pageCount = len(data)
                     if page < pageCount:
                         res.update(code=0, data=data[page], pageCount=pageCount)
