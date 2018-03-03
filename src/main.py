@@ -37,7 +37,7 @@ app = Flask(__name__)
 #签名
 sig = Signature()
 #又拍云存储封装接口
-api = CloudStorage(timeout=10)
+api = CloudStorage(timeout=60)
 #又拍云存储图片数据缓存
 picKey = "{}:Images".format(GLOBAL["ProcessName"])
 #系统配置
