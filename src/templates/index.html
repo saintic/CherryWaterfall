@@ -35,12 +35,12 @@
     util.fixbar();
     //加载标签列表
     $.ajax({
-        url: '{{ url_for("api_view") }}?'+make_url({Action: "getLabel"}),
+        url: '{{ url_for("front.api_view") }}?'+make_url({Action: "getLabel"}),
         success: function (res) {
             // 渲染标签区域
             var str = '';
             for (var index = 0, length = res.data.length; index < length ; index++) {
-                str += '<a href="{{ url_for("index_view") }}?label='+ res.data[index].label +'"><span class="layui-badge layui-bg-green">' + res.data[index].label + '</span></a>&nbsp;&nbsp;';
+                str += '<a href="{{ url_for("front.index_view") }}?label='+ res.data[index].label +'"><span class="layui-badge layui-bg-green">' + res.data[index].label + '</span></a>&nbsp;&nbsp;';
             }
             $('#listLabelArea').html(str);
         },
@@ -55,7 +55,7 @@
             var lis = [];
             var params = {Action: "getList", page: page, limit: "{{ request.args.get('limit', 20) }}", label: "{{ request.args.get('label', '') }}"};
             $.ajax({
-                url: '{{ url_for("api_view") }}?'+make_url(params),
+                url: '{{ url_for("front.api_view") }}?'+make_url(params),
                 success: function (res) {
                     console.log(res);
                     layui.each(res.data, function(index, item){

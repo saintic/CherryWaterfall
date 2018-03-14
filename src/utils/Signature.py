@@ -5,11 +5,11 @@
 
     Api签名认证
 
-    :copyright: (c) 2017 by Mr.tao.
-    :license: Apache2.0, see LICENSE for more details.
+    :copyright: (c) 2017 by staugur.
+    :license: MIT, see LICENSE for more details.
 """
 
-from config import Sign
+from config import SYSTEM
 from .tool import logger, md5, get_current_timestamp
 from functools import wraps
 from flask import request, jsonify
@@ -19,9 +19,9 @@ class Signature(object):
     """ 接口签名认证 """
 
     def __init__(self):
-        self._version = Sign["version"]
+        self._version = SYSTEM["Sign"]["version"]
         self._accessKeys = [
-            {"accesskey_id": Sign["accesskey_id"], "accesskey_secret": Sign["accesskey_secret"]}
+            {"accesskey_id": SYSTEM["Sign"]["accesskey_id"], "accesskey_secret": SYSTEM["Sign"]["accesskey_secret"]}
         ]
 
     def _check_req_timestamp(self, req_timestamp):

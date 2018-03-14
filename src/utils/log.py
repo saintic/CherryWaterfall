@@ -5,7 +5,7 @@
 
     Define logging base class.
 
-    :copyright: (c) 2017 by Mr.tao.
+    :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -42,3 +42,17 @@ class Logger:
     @property
     def getLogger(self):
         return self._logger
+
+if __name__ == "__main__":
+        syslog = Logger("sys").getLogger
+        reqlog = Logger("req").getLogger
+
+        syslog.info("sys hello info")
+        syslog.debug("sys hello debug")
+        syslog.error("sys hello error")
+        syslog.warning("sys hello warning")
+
+        reqlog.info("req hello info")
+        reqlog.debug("req hello debug")
+        reqlog.error("req hello error")
+        reqlog.warning("req hello warning")

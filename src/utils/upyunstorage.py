@@ -5,7 +5,7 @@
 
     Upyun class.
 
-    :copyright: (c) 2017 by Mr.tao.
+    :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
 

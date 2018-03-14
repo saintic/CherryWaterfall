@@ -140,7 +140,7 @@
     //多文件列表上传
     var demoListView = $('#previewList'), uploadListIns = upload.render({
         elem: '#chooseList'
-        ,url: '{{ url_for("upload_view") }}?'+make_url({label: "{{ request.args.get('label', labelDefault) }}"})
+        ,url: '{{ url_for("front.upload_view") }}?'+make_url({label: "{{ request.args.get('label', labelDefault) }}"})
         ,method: 'POST'
         ,accept: 'images'
         ,exts: 'jpg|png|gif|jpeg|mp4'
@@ -222,7 +222,7 @@
         console.log(field);
         var params = {Action: "setSystem"};
         $.ajax({
-            url: "{{ url_for('api_view') }}?"+make_url(params),
+            url: '{{ url_for("front.api_view") }}?'+make_url(params),
             method: 'POST',
             datatype: 'json',
             data: field,
@@ -246,14 +246,14 @@
         // 渲染标签区域
         var str = '';
         for (var index = 0, length = labels.length; index < length ; index++) {
-            str += '<a href="{{ url_for("admin_view") }}?label='+ labels[index] +'"><span class="layui-badge layui-bg-green">' + labels[index] + '</span></a>&nbsp;&nbsp;';
+            str += '<a href="{{ url_for("front.admin_view") }}?label='+ labels[index] +'"><span class="layui-badge layui-bg-green">' + labels[index] + '</span></a>&nbsp;&nbsp;';
         }
         $('#uploadLabelArea').html(str);
     }
     //定义渲染应用列表函数
     var options = {
             elem: "#labelManager"
-            ,url: '{{ url_for("api_view") }}?'+make_url({Action:"getLabel", is_layui_table: true}) //数据接口
+            ,url: '{{ url_for("front.api_view") }}?'+make_url({Action:"getLabel", is_layui_table: true}) //数据接口
             ,page: true //开启分页
             ,cellMinWidth: 30
             ,loading: true
@@ -279,7 +279,7 @@
     //监听提交
     form.on('submit(setLabel)', function(data){
         $.ajax({
-            url: "{{ url_for('api_view') }}?"+make_url({Action: "setLabel"}),
+            url: '{{ url_for("front.api_view") }}?'+make_url({Action: "setLabel"}),
             method: 'POST',
             datatype: 'json',
             data: {"label": data.field.label},
@@ -310,7 +310,7 @@
                 layer.close(index);
                 //向服务端发送删除指令
                 $.ajax({
-                    url: '{{ url_for("api_view") }}?'+make_url({Action:"delLabel"}),
+                    url: '{{ url_for("front.api_view") }}?'+make_url({Action:"delLabel"}),
                     method: "DELETE",
                     data: {"label": data.label},
                     success: function(res) {

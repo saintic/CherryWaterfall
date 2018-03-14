@@ -1,6 +1,7 @@
 Flask==0.10.1
-SpliceURL>=1.2
 requests
-upyun
-gunicorn
+setproctitle
 gevent
+gunicorn
+pycrypto
+upyun
