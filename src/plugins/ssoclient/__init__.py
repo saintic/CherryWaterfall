@@ -132,6 +132,7 @@ def authorized():
                 ct = data["CallbackType"]
                 cd = data["CallbackData"]
                 sid = data["sid"]
+                uid = data["uid"]
                 token = data["token"]
             except Exception,e:
                 logger.warning(e)
