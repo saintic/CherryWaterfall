@@ -84,7 +84,7 @@ def GlobalTemplateVariables():
 @app.before_request
 def before_request():
     g.signin = verify_sessionId(request.cookies.get("sessionId"))
-    g.uid = analysis_sessionId(request.cookies.get("sessionId")).get("uid") if g.signin else None
+    g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
     # 仅是重定向页面快捷定义
