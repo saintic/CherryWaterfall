@@ -110,7 +110,7 @@ def authorized():
                     #userinfo = resp["userinfo"]
                     if uid and uid in comma_pat.split(g.site["sso_AllowedUsers"]):
                         # 授权令牌验证通过，设置局部会话，允许登录
-                        sessionId = set_sessionId(uid=uid, seconds=expire)
+                        sessionId = set_sessionId(uid=uid, seconds=expire, sid=sid)
                         response = make_response(redirect(get_redirect_url("front.index_view")))
                         response.set_cookie(key="sessionId", value=sessionId, max_age=expire, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
                         return response
