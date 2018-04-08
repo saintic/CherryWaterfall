@@ -14,7 +14,7 @@ from .jwt import JWTUtil, JWTException
 from .aes_cbc import CBC
 from config import SSO
 from functools import wraps
-from flask import g, request, redirect, url_for, abort
+from flask import g, request, redirect, url_for, abort, jsonify
 
 jwt = JWTUtil()
 cbc = CBC()
@@ -105,6 +105,15 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if not g.signin:
             return redirect(url_for('sso.Login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def apilogin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.signin:
+            return jsonify(code=302, msg="please login first")
         return f(*args, **kwargs)
     return decorated_function
 

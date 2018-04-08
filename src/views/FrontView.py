@@ -11,7 +11,7 @@
 
 import os, datetime
 from config import GLOBAL, Upyun
-from utils.web import login_required
+from utils.web import login_required, apilogin_required
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
 from utils.tool import logger, md5, gen_rnd_filename, allowed_file, get_current_timestamp, ListEqualSplit, setSystem, timestamp_to_timestring
@@ -41,7 +41,7 @@ def admin_view():
     return render_template("admin.html")
 
 @FrontBlueprint.route('/upload/', methods=['POST','OPTIONS'])
-@login_required
+@apilogin_required
 @sig.signature_required
 def upload_view():
     res = dict(code=-1, msg=None)
@@ -84,7 +84,7 @@ def upload_view():
     return jsonify(res)
 
 @FrontBlueprint.route("/api/", methods=['GET', 'POST','OPTIONS', 'DELETE', 'PUT'])
-@login_required
+@apilogin_required
 @sig.signature_required
 def api_view():
     """获取图片数据(以redis为基准)"""
