@@ -160,7 +160,7 @@ def api_view():
         elif Action == "getPhoto":
             # 返回相册格式数据
             data = _get_pics()
-            res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_to_timestring(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"]} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) ])
+            res = dict(title=g.site["site_TitleSuffix"], id=1, start=0, data=[ {"alt": timestamp_to_timestring(float(img['ctime'])), "pid": img["imgId"], "src": img["imgUrl"]} for img in sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=True) if img["imgUrl"].split(".")[-1].lower() != "mp4" ])
         elif Action == "getLabel":
             # 定义参数
             sort = request.args.get("sort") or "desc"
