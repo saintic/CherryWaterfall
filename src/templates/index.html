@@ -2,6 +2,10 @@
 
 {% block title %}主页{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/css/boxImg.css">
+{% endblock %}
+
 {% block content %}
     <blockquote class="layui-elem-quote">
         <i>当前位置：主页</i><br><i>当前标签：{{ request.args.get("label", "全部") }}</i><div id="listLabelArea"></div>
@@ -15,10 +19,7 @@
 
 {% block script %}
 <script type="text/javascript">
-    var $ = layui.jquery;
-    var util = layui.util;
-    var flow = layui.flow;
-    var layer = layui.layer;
+    var $ = layui.jquery, util = layui.util, flow = layui.flow, layer = layui.layer;
     //判断当前字符串是否以str开始
     if (typeof String.prototype.startsWith != 'function')   {
         String.prototype.startsWith = function (str){
@@ -56,6 +57,7 @@
             var params = {Action: "getList", page: page, limit: "{{ request.args.get('limit', 20) }}", label: "{{ request.args.get('label', '') }}"};
             $.ajax({
                 url: '{{ url_for("front.api_view") }}?'+make_url(params),
+                async: false,
                 success: function (res) {
                     console.log(res);
                     layui.each(res.data, function(index, item){
@@ -63,36 +65,14 @@
                         if (item.imgUrl.endsWith(".mp4")===true) {
                             lis.push('<div class="item"><video width="100%" height="100%" controls="controls" autobuffer="autobuffer"><source src="'+item.imgUrl+'" type="video/mp4"></source></video></div>');
                         } else {
-                            lis.push('<div class="item"><img lay-src="'+item.imgUrl+'" onclick="showPic(this.src)" lay-id="'+item.imgId+'"></div>');
+                            lis.push('<div class="item"><img modal="zoomImg" src="'+item.imgUrl+'" lay-src="'+item.imgUrl+'" lay-id="'+item.imgId+'"></div>');
                         }
                     });
+                    $.getScript("/static/js/boxImg.js");
                     next(lis.join(''), page < res.pageCount);
                 },
             });
         }
     });
-    function showPic(imgUrl) {
-        // 获取屏幕宽高
-        var winSize = function() {
-            var e = window, a = 'inner';
-            if (!('innerWidth' in window )){
-                a = 'client';
-                e = document.documentElement || document.body;
-            }
-            return { width : e[ a+'Width' ] , height : e[ a+'Height' ] };
-        };
-        var w = winSize().width - 40, h = winSize().height - 50;
-        layer.open({
-            type: 1,
-            title: false,
-            closeBtn: 1,
-            skin: 'layui-layer-nobg', //没有背景色
-            shadeClose: true,
-            maxWidth: w,
-            maxHeight: h,
-            scrollbar: true,
-            content: '<div><img src="' + imgUrl +'" /></div>'
-        });
-    }
 </script>
 {% endblock %}

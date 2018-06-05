@@ -24,8 +24,9 @@
 </ul>
 {% block content %}
 {% endblock %}
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='layui.all.js') }}" charset="utf-8"></script>
-<script src="{{ url_for('static', filename='md5.min.js') }}" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/md5.min.js') }}" charset="utf-8"></script>
 <script type="text/javascript">
     function _sign(params) {
         /*
@@ -77,7 +78,7 @@
                 photos: json
                 ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
             });
-        }); 
+        });
     }
 </script>
 {% block script %}
