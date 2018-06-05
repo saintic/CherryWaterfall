@@ -83,7 +83,7 @@ def GlobalTemplateVariables():
 
 @app.before_request
 def before_request():
-    g.signin = True#verify_sessionId(request.cookies.get("sessionId"))
+    g.signin = verify_sessionId(request.cookies.get("sessionId"))
     g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
@@ -124,7 +124,7 @@ def teardown_request(exception):
 @app.errorhandler(500)
 def server_error(error=None):
     if error:
-        err_logger.error("500: {}".format(error), exc_info=True)
+        err_logger.error(error, exc_info=True)
     message = {
         "msg": "Server Error",
         "code": 500
@@ -134,8 +134,6 @@ def server_error(error=None):
 
 @app.errorhandler(404)
 def not_found(error=None):
-    if error:
-        err_logger.info("404: {}".format(error))
     message = {
         'code': 404,
         'msg': 'Not Found: ' + request.url,
