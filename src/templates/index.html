@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}主页{% endblock %}
+{% block title %}首页({{ g.redis.scard(picKey) }}){% endblock %}
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="/static/css/boxImg.css">
