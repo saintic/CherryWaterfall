@@ -55,7 +55,7 @@ $.ajax({
     url:'http://127.0.0.1:13141/api/?'+make_url({Action: "getOne"}),
     success:function(res){
         console.log(res);
-        if (res.code==0) {
+        if (res.code === 0) {
             // 判定imgUrl是否是视频格式文件
             if (res.data.imgUrl.endsWith(".mp4")===true) {
                 var str = '<video controls="controls" autobuffer="autobuffer"><source src="'+res.data.imgUrl+'" type="video/mp4"></source></video>';
