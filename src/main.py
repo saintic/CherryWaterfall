@@ -87,6 +87,7 @@ def before_request():
     g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
+    print g.uid
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
     # 上下文扩展点之请求后(返回前)

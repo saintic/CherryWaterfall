@@ -149,7 +149,7 @@ def getSystem(rc, key):
         if not data.get("sys_Close"):
             data.update(sys_Close=0)
         if not data.get("sso_AllowedUsers"):
-            data.update(sso_AllowedUsers="Fxr9KFGSGT6fnZAX5vxDBE")
+            data.update(sso_AllowedUsers="")
         if not data.get("site_UploadMax"):
             data.update(site_UploadMax=0)
         if not data.get("site_UploadSize"):

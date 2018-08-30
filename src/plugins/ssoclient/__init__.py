@@ -107,8 +107,15 @@ def authorized():
                     uid = resp["uid"]
                     sid = resp["sid"]
                     expire = int(resp["expire"])
-                    #userinfo = resp["userinfo"]
-                    if uid and uid in comma_pat.split(g.site["sso_AllowedUsers"]):
+                    #userinfo = resp["userinfo"].get("data")
+                    allowUsers = [ i for i in comma_pat.split(g.site["sso_AllowedUsers"]) if i ]
+                    allowLogin = False
+                    if allowUsers:
+                        if uid and uid in allowUsers:
+                            allowLogin = True
+                    else:
+                        allowLogin = True
+                    if allowLogin is True:
                         # 授权令牌验证通过，设置局部会话，允许登录
                         sessionId = set_sessionId(uid=uid, seconds=expire, sid=sid)
                         response = make_response(redirect(get_redirect_url("front.index_view")))
