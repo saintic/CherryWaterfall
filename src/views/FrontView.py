@@ -222,3 +222,19 @@ def feed_view():
         )
     return feed.get_response()
 
+@FrontBlueprint.route("/wallpaper")
+def getWallpaper():
+    # 随机获取一张图片作为壁纸并重定向到图片地址
+    def getPic():
+        return g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], g.redis.srandmember(current_app.config["picKey"])))
+    data = getPic()
+    retry = 0
+    imgUrl = "https://img.saintic.com/sakura/201802281345013240.png"
+    while retry < 3:
+        if data and isinstance(data, dict) and "imgUrl" in data and data["imgUrl"].endswith(".mp4") is False:
+            imgUrl = data["imgUrl"]
+            break
+        else:
+            data = getPic()
+            retry += 1
+    return make_response(redirect(imgUrl))
