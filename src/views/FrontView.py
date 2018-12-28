@@ -14,10 +14,11 @@ from config import GLOBAL, Upyun
 from utils.web import login_required, apilogin_required
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
-from utils.tool import logger, md5, gen_rnd_filename, allowed_file, get_current_timestamp, ListEqualSplit, setSystem, timestamp_to_timestring
+from utils.tool import logger, md5, gen_rnd_filename, allowed_file, get_current_timestamp, ListEqualSplit, setSystem, timestamp_to_timestring, comma_pat
 from werkzeug import secure_filename
 from werkzeug.contrib.atom import AtomFeed
 from flask import Blueprint, request, g, redirect, make_response, url_for, jsonify, render_template, abort, current_app
+from random import randint
 
 # 初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
@@ -224,17 +225,40 @@ def feed_view():
 
 @FrontBlueprint.route("/wallpaper")
 def getWallpaper():
+    # 提取label参数(可用逗号分隔多个label)，返回label下所有图片并随机返回一张
+    label = request.args.get("label")
+    # 获取label下的所有图片
+    def getPicsWithLabel(label):
+        # label, 以英文逗号分隔的字符串
+        labels = comma_pat.split(label)
+        data = [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(current_app.config["picKey"])) ]
+        data = [ i for i in data if i.get("label", current_app.config["labelDefault"]) in labels ]
+        return data
     # 随机获取一张图片作为壁纸并重定向到图片地址
-    def getPic():
-        return g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], g.redis.srandmember(current_app.config["picKey"])))
-    data = getPic()
+    def getOnePic():
+        picData = g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], g.redis.srandmember(current_app.config["picKey"])))
+        return picData
+    # 处理逻辑
     retry = 0
-    imgUrl = "https://img.saintic.com/sakura/201802281345013240.png"
-    while retry < 3:
-        if data and isinstance(data, dict) and "imgUrl" in data and data["imgUrl"].endswith(".mp4") is False:
-            imgUrl = data["imgUrl"]
-            break
-        else:
-            data = getPic()
-            retry += 1
-    return make_response(redirect(imgUrl))
+    imgUrl = None
+    defaultImgUrl = "https://img.saintic.com/sakura/201802281345013240.png"
+    if label:
+        pics = getPicsWithLabel(label)
+        data = pics.pop(randint(0, len(pics)-1))
+        while retry < 3:
+            if data and isinstance(data, dict) and "imgUrl" in data and data["imgUrl"].endswith(".mp4") is False:
+                imgUrl = data["imgUrl"]
+                break
+            else:
+                data = pics.pop(randint(0, len(pics)-1))
+                retry += 1
+    else:
+        data = getOnePic()
+        while retry < 3:
+            if data and isinstance(data, dict) and "imgUrl" in data and data["imgUrl"].endswith(".mp4") is False:
+                imgUrl = data["imgUrl"]
+                break
+            else:
+                data = getOnePic()
+                retry += 1
+    return make_response(redirect(imgUrl or defaultImgUrl))
