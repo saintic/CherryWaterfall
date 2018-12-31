@@ -83,7 +83,7 @@ def GlobalTemplateVariables():
 
 @app.before_request
 def before_request():
-    g.signin = True#verify_sessionId(request.cookies.get("sessionId"))
+    g.signin = verify_sessionId(request.cookies.get("sessionId"))
     g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
     g.redis = from_url(REDIS)
     g.site = getSystem(g.redis, sysKey)["data"]
