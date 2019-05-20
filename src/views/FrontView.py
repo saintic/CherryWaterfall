@@ -10,7 +10,7 @@
 """
 
 import os, datetime
-from config import GLOBAL, Upyun
+from config import GLOBAL, Upyun, WX_LABEL
 from utils.web import login_required, apilogin_required
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
@@ -232,12 +232,14 @@ def wx_view():
                 data = _get_pics()
                 if data:
                     data = sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True)
+                    if WX_LABEL:
+                        data = [ i for i in data if i.get("label", current_app.config["labelDefault"]) == WX_LABEL ]
                     data = ListEqualSplit(data, limit)
                     pageCount = len(data)
                     if page < pageCount:
                         res.update(code=0, data=data[page], pageCount=pageCount)
                     else:
-                        res.update(code=3, msg="IndexOut with page {}".format(page))
+                        res.update(code=3, msg="No more")
                 else:
                     res.update(code=4, msg="No data")
     return jsonify(res)

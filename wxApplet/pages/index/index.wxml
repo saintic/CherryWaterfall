@@ -1,0 +1,3 @@
+<scroll-view class='main' scroll-y='true' style="height:{{windowHeight}}px" bindscrolltolower='loadMoreImages'>
+    <image wx:for='{{dataList}}' wx:key='item' src='{{item.src}}' style='position: absolute; top: {{item.top}}px; left: {{item.left}}px; width: {{imgWidth}}px; height: {{item.height}}px' bindload='loadImage' data-index='{{index}}' bindtap='previewImg'/>
+</scroll-view>

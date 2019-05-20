@@ -75,6 +75,8 @@ SYSTEM = {
         "version": getenv("cherrywaterfall_sign_version", "v1"),
         "accesskey_id": getenv("cherrywaterfall_sign_accesskeyid", "accesskey_id"),
         "accesskey_secret": getenv("cherrywaterfall_sign_accesskeysecret", "accesskey_secret"),
-    }
+    },
     # utils.Signature.Signature类中所有签名配置
+
+    "WX_LABEL": getenv("cherrywaterfall_wxlabel", "")
 }
