@@ -1,7 +1,7 @@
 var MD5 = require('./md5.js');
 var version = "v1";
-var accesskey_id = "2A6F8B5ACD5E6D9663C739345D613403ILY";
-var accesskey_secret = "B04F61F68D63E757A5019378B817B3917E3096FD9DFA36F1AEA9CA5FA634D0B6SK";
+var accesskey_id = "";
+var accesskey_secret = "";
 function _sign(params) {
     /*
         @params object: uri请求参数(包含除signature外的公共参数)
