@@ -2,4 +2,4 @@
 
 ## Issue
 
-  - https://satic.io/n
+  - https://satic.io/issues

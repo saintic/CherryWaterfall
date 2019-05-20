@@ -206,6 +206,42 @@ def api_view():
     logger.debug(res)
     return jsonify(res)
 
+
+@FrontBlueprint.route("/wx/")
+@sig.signature_required
+def wx_view():
+    """获取图片数据(以redis为基准)"""
+    res = dict(code=-1, msg=None)
+    Action = request.args.get("Action")
+    # 公共函数
+    _get_pics = lambda: [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(current_app.config["picKey"])) ]
+    # GET请求段
+    if request.method == "GET":
+        if Action == "getList":
+            # 获取图片列表
+            sort = request.args.get("sort") or "desc"
+            page = request.args.get("page") or 0
+            limit = request.args.get("limit") or 10
+            # 参数检查
+            try:
+                page = int(page)
+                limit = int(limit)
+            except:
+                res.update(code=2, msg="Invalid page or limit")
+            else:
+                data = _get_pics()
+                if data:
+                    data = sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True)
+                    data = ListEqualSplit(data, limit)
+                    pageCount = len(data)
+                    if page < pageCount:
+                        res.update(code=0, data=data[page], pageCount=pageCount)
+                    else:
+                        res.update(code=3, msg="IndexOut with page {}".format(page))
+                else:
+                    res.update(code=4, msg="No data")
+    return jsonify(res)
+
 @FrontBlueprint.route("/feed/")
 def feed_view():
     data = [ g.redis.hgetall("{}:{}".format(GLOBAL['ProcessName'], imgId)) for imgId in list(g.redis.smembers(current_app.config["picKey"])) ]
