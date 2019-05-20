@@ -10,7 +10,7 @@
 """
 
 import os, datetime
-from config import GLOBAL, Upyun, WX_LABEL
+from config import GLOBAL, Upyun, SYSTEM
 from utils.web import login_required, apilogin_required
 from utils.Signature import Signature
 from utils.upyunstorage import CloudStorage
@@ -232,6 +232,7 @@ def wx_view():
                 data = _get_pics()
                 if data:
                     data = sorted(data, key=lambda k:(k.get('ctime',0), k.get('imgUrl',0)), reverse=False if sort == "asc" else True)
+                    WX_LABEL = SYSTEM["WX_LABEL"]
                     if WX_LABEL:
                         data = [ i for i in data if i.get("label", current_app.config["labelDefault"]) == WX_LABEL ]
                     data = ListEqualSplit(data, limit)
